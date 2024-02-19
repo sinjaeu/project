@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이디 찾기</title>
+</head>
+<body>
+    <h2>아이디 찾기</h2>
+    <form id="find-username-form">
+        <div>
+            <label for="email">이메일 주소:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <button type="submit">아이디 찾기</button><a href="/login">로그인 하러가기</a>
+    </form>
+    <script>
+        document.getElementById("find-username-form").addEventListener("submit", async function(event) {
+            event.preventDefault(); // 폼 기본 동작 중단
+            
+            // 폼 데이터 가져오기
+            const formData = {
+                email: document.getElementById('email').value
+            };
+            
+            try {
+                // 서버로 데이터를 전송하는 코드
+                const response = await fetch("/find-username", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    alert(data.message);
+                    location.reload();
+                }
+                else{
+                    console.log(data);
+                    const usernames = Object.values(data).join(', '); // 결과에서 value 값만 추출하여 나열
+                    alert("찾은 아이디: " + usernames); // 이메일 전송 성공 알림창 표시
+                    location.href = '/login';
+                }
+            } catch (error) {
+                console.error("아이디 찾기에 실패하였습니다. :", error);
+                alert("아이디 찾기에 실패하였습니다. : " + error.message); // 오류 메시지 표시
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 페이지</title>
+    <link rel="stylesheet" href="CSS/main.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>로그인</h2>
+        <form id="login-form" action="/login">
+            <div class="form-group">
+                <label for="username">사용자 이름:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">비밀번호:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">로그인</button>
+        </form>
+        <p>아직 계정이 없으신가요? <a href="/signin">회원가입</a></p>
+        <a href="/find_id">아이디 찾기</a><a href="/reset_password">비밀번호 변경</a>
+        <p><a href="/">메인으로</a></p>
+    </div>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", async function(event) {
+            event.preventDefault(); // 폼 기본 동작 중단
+            
+            // 폼 데이터 가져오기
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                // 서버로 데이터를 전송하는 코드
+                const response = await fetch("/login", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    alert(data.message)
+                    window.location.reload();
+                }
+                else{
+                    console.log(data);
+                    alert(data.message); // 로그인 성공 알림창 표시
+                    location.href = '/';
+                }
+            } catch (error) {
+                console.error("Error logging in:", error);
+                alert("Failed to log in: " + error.message); // 오류 메시지 표시
+            }
+        });
+    </script>
+</body>
+</html>

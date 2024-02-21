@@ -1,17 +1,9 @@
 * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
     text-align: center;
     color: black;
-}
-
-.mainMenu > ul > li > a, .subMenu > li >a {
-    text-decoration: none;
-    color: white;
-}
-
-li{
-    list-style: none;
 }
 
 .mainMenu {
@@ -20,7 +12,7 @@ li{
     background-color: #777;
 }
 
-.mainMenu > ul {
+.mainMenu {
     width: 100%;
     height: 100%;
     display: flex;
@@ -28,40 +20,68 @@ li{
     list-style: none;
 }
 
-.mainMenu > ul > li {
+.mainMenu > li {
     margin: auto;
-    position: relative; /* 메인 메뉴 아이템의 위치를 상대적으로 설정 */
+    position: relative;
 }
 
-.mainMenu > ul > li > a {
-    padding: 10px 20px;
+.mainMenu > li:active{
+    background-color: #555;
+}
+
+.mainMenu > li > a {
+    display: block;
+    padding: 20px;
+    text-decoration: none;
+    color: white;
 }
 
 .subMenu {
-    position: absolute; /* 서브메뉴를 부모 요소에 상대적으로 위치시킴 */
-    top: 100%; /* 메인 메뉴 아이템의 아래쪽에 배치 */
-    left: 40%;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 150%;
     background-color: #777;
-    width: 100%; /* 서브메뉴를 메인메뉴와 같은 너비로 설정 */
-}
-
-.mainMenu > ul > li:hover .subMenu {
-    display: block; /* 메인 메뉴 아이템에 마우스를 올렸을 때 서브메뉴 표시 */
 }
 
 .subMenu > li > a {
-    padding: 10px 20px;
-    display: block; /* 서브메뉴 아이템을 블록 레벨 요소로 설정하여 수직으로 배치 */
+    display: block;
+    padding: 10px 0;
+    text-decoration: none;
+    color: white;
 }
-.ls{
+
+.subMenu > li{
+    list-style: none;
+}
+
+.subMenu:last-child{
+    border-bottom-left-radius: 5%;
+    border-bottom-right-radius: 5%;
+}
+
+.subMenu > li:hover{
+    background-color: #555;
+}
+
+.ls {
     display: flex;
     justify-content: center;
     margin: auto;
 }
-.ls > li{
+
+.ls > li {
     margin-right: 20px;
 }
+
+.mainMenu > li > a:hover {
+    cursor: pointer;
+}
 .ls > li > a{
-    color: white;
     text-decoration: none;
+    color: white;
+}
+#exchangeRatePrices > li{
+    color: black;
 }

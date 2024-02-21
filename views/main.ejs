@@ -7,44 +7,179 @@
     <link rel="stylesheet" type="text/css" href="/CSS/main.css">
 </head>
 <body>
-    <nav class="mainMenu">
-        <ul>
-            <li><a href="./main.html"><img src="" alt="로고"></a></li>
-            <li><a href="#">주식</a>
+    <nav>
+        <ul class="mainMenu">
+            <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a>주식 거래</a>
                 <ul class="subMenu">
                     <li><a href="#">검색</a></li>
                     <li><a href="#">매수</a></li>
                     <li><a href="#">매도</a></li>
                 </ul>
             </li>
-            <li><a href="#">메인 메뉴 2</a>
+            <li><a>외화 거래</a>
                 <ul class="subMenu">
-                    <li><a href="#">서브 메뉴 1</a></li>
-                    <li><a href="#">서브 메뉴 2</a></li>
-                    <li><a href="#">서브 메뉴 3</a></li>
+                    <li><a href="#">검색</a></li>
+                    <li><a href="#">매수</a></li>
+                    <li><a href="#">매도</a></li>
                 </ul>
             </li>
-            <li><a href="#">메인 메뉴 3</a>
+            <li><a>명예의 전당</a>
                 <ul class="subMenu">
-                    <li><a href="#">서브 메뉴 1</a></li>
-                    <li><a href="#">서브 메뉴 2</a></li>
-                    <li><a href="#">서브 메뉴 3</a></li>
+                    <li><a href="#">역대 최고 수익자</a></li>
+                    <li><a href="#">최고의 자산가</a></li>
                 </ul>
             </li>
-            <li><a href="#">게시판</a>
+            <li><a>게시판</a>
                 <ul class="subMenu">
                     <li><a href="#">자유 게시판</a></li>
                     <li><a href="#">공지</a></li>
                 </ul>
             </li>
-            <div class="ls">
-                <li class="login"><a href="/login">로그인</a></li>
-                <li class="signin"><a href="/signin">회원가입</a></li>
-            </div>
+            <li><a>게임</a>
+                <ul class="subMenu">
+                    <li><a href="#">복권</a></li>
+                    <li><a href="#">룰렛</a></li>
+                    <li><a href="#">주사위</a></li>
+                </ul>
+            </li>
+            <% if (userId) { %>
+                <li><a>사용자 이름: <%= userId %></a></li>
+                <li><a href="/logout">로그아웃</a></li>
+            <% } else { %>
+                <li><a href="/login">로그인</a></li>
+                <li><a href="/signin">회원가입</a></li>
+            <% } %>
         </ul>
     </nav>
-    <!-- <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br> -->
+    <ul id="exchangeRatePrices">
+        <li id="exchange-rate-USD">1 <span id="base-currency-USD"></span> : <span id="exchange-rate-value-USD"></span> <span id="target-currency-USD"></span></li>
+        <li id="exchange-rate-EUR">2 <span id="base-currency-EUR"></span> : <span id="exchange-rate-value-EUR"></span> <span id="target-currency-EUR"></span></li>
+        <li id="exchange-rate-JPY">3 <span id="base-currency-JPY"></span> : <span id="exchange-rate-value-JPY"></span> <span id="target-currency-JPY"></span></li>
+        <li id="exchange-rate-GBP">4 <span id="base-currency-GBP"></span> : <span id="exchange-rate-value-GBP"></span> <span id="target-currency-GBP"></span></li>
+        <li id="exchange-rate-CAD">5 <span id="base-currency-CAD"></span> : <span id="exchange-rate-value-CAD"></span> <span id="target-currency-CAD"></span></li>
+    </ul>
+    <ul id="stockPrices">
+            <li>1 <span id="stockPrice005930"></span> 가격 : <span id="stockPrice-005930"></span>원</li>
+            <li>2 <span id="stockPrice000660"></span> 가격 : <span id="stockPrice-000660"></span>원</li>
+            <li>3 <span id="stockPrice035720"></span> 가격 : <span id="stockPrice-035720"></span>원</li>
+            <li>4 <span id="stockPrice051910"></span> 가격 : <span id="stockPrice-051910"></span>원</li>
+            <li>5 <span id="stockPrice207940"></span> 가격 : <span id="stockPrice-207940"></span>원</li>
+    </ul>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        // $(document).ready(function() {
+        //     // 서버 엔드포인트 URL
+        //     const apiUrl = '/stock';
+
+        //     // 미리 정의된 주식 심볼 배열
+        //     const symbols = ['005930','000660','051910','207940', '035720'];
+
+        //     // 주식 정보를 가져오는 함수
+        //     function getStockPrice(symbol) {
+        //         // 요청을 보낼 API 엔드포인트 URL 설정
+        //         const url = apiUrl;
+
+        //         // POST 요청을 보냅니다.
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: url,
+        //             data: { symbol: symbol },
+        //             success: function(response) {
+        //                 console.log(response);
+        //                 // 서버로부터 받은 응답을 처리합니다.
+        //                 console.log('Stock symbol:', response.symbol);
+        //                 console.log('Stock price:', response.price);
+
+        //                 // 받은 응답 중에서 주식 가격을 얻습니다.
+        //                 const stockPrice = response.price;
+
+        //                 // 가격을 HTML 요소에 표시
+        //                 $('#stockPrice' + symbol).text(response.symbol);
+        //                 $('#stockPrice-' + symbol).text(stockPrice);
+        //             },
+        //             error: function(xhr, status, error) {
+        //                 // 오류가 발생한 경우 처리합니다.
+        //                 console.error('Error:', error);
+        //             }
+        //         });
+        //     }
+
+        //     // 주식 가격을 업데이트하는 함수
+        //     function updateStockPrices() {
+        //         symbols.forEach(function(symbol) {
+        //             getStockPrice(symbol);
+        //         });
+        //     }
+
+        //     // 페이지가 로딩되면 실행할 함수 호출
+        //     updateStockPrices();
+
+        //     // 1분마다 주식 가격을 업데이트
+        //     setInterval(updateStockPrices, 60000);
+        // });
+        // // 페이지 로딩이 완료되면 실행될 함수
+        // $(document).ready(function() {
+        //     // ExchangeRate-API의 엔드포인트 URL
+        //     const apiUrl = '/exchange-rates';
+
+        //     // 미리 정의된 통화 코드 배열
+        //     const currencies = [
+        //         { base: 'USD', target: 'KRW' },
+        //         { base: 'EUR', target: 'KRW' },
+        //         { base: 'JPY', target: 'KRW' },
+        //         { base: 'GBP', target: 'KRW' },
+        //         { base: 'CAD', target: 'KRW' }
+        //     ];
+
+        //     // ExchangeRate-API에 요청을 보내고 응답을 처리하는 함수
+        //     function getExchangeRate(baseCurrency, targetCurrency) {
+        //         // 요청을 보낼 API 엔드포인트 URL 설정
+        //         const url = apiUrl;
+
+        //         // POST 요청을 보냅니다.
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: url,
+        //             data: {
+        //                 baseCurrency: baseCurrency,
+        //                 targetCurrency: targetCurrency
+        //             },
+        //             success: function(response) {
+        //                 // 서버로부터 받은 응답을 처리합니다.
+        //                 console.log('Exchange rate:', response.rate);
+        //                 console.log('Base currency:', response.base);
+        //                 console.log('Target currency:', response.targetCurrency);
+
+        //                 // 받은 응답 중에서 통화 변환 가격을 얻습니다.
+        //                 const exchangeRate = response.rate;
+
+        //                 // 변환된 가격을 HTML 요소에 표시
+        //                 $('#exchange-rate-value-' + baseCurrency).text(exchangeRate.toFixed(2)); // 소수점 둘째 자리까지 표시
+        //                 $('#base-currency-' + baseCurrency).text(baseCurrency);
+        //                 $('#target-currency-' + baseCurrency).text(targetCurrency);
+        //             },
+        //             error: function(xhr, status, error) {
+        //                 // 오류가 발생한 경우 처리합니다.
+        //                 console.error('Error:', error);
+        //             }
+        //         });
+        //     }
+
+        //     // 환율을 업데이트하는 함수
+        //     function updateExchangeRates() {
+        //         currencies.forEach(function(currency) {
+        //             getExchangeRate(currency.base, currency.target);
+        //         });
+        //     }
+
+        //     // 페이지가 로딩되면 실행할 함수 호출
+        //     updateExchangeRates();
+
+        //     // 5초마다 환율을 업데이트
+        //     setInterval(updateExchangeRates, 60000);
+        // });
+    </script>
+    <script src="script/main.js"></script>
 </body>
 </html>

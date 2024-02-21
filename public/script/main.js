@@ -1,7 +1,11 @@
-$('.subMenu').hide();
-$('nav').mouseover(function(){
-    $(this.children('.subMenu')).stop().slideDown()
-})
-$('nav').mouseleave(function(){
-    $('.subMenu').stop().slideUp()
-})
+$('.mainMenu > li').click(function(){
+    $(this).find('.subMenu').stop().slideDown()
+});
+$('.subMenu').mouseover(function(){
+    $(this).stop().slideDown()
+});
+$('.mainMenu > li').mouseout(function(){
+    $(this).find('.subMenu').stop().slideUp()
+});
+
+

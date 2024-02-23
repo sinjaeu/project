@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주식 매수 / 매도</title>
+    <link rel="stylesheet" href="/CSS/main.css">
+</head>
+<body>
+    <nav>
+        <ul class="mainMenu">
+            <% if (userId) { %>
+            <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a>주식 거래</a>
+                <ul class="subMenu">
+                    <li><a href="/stock_search">검색</a></li>
+                    <li><a href="/stock_transaction">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>외화 거래</a>
+                <ul class="subMenu">
+                    <li><a href="/currency_search">검색</a></li>
+                    <li><a href="/currency_transaction">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>명예의 전당</a>
+                <ul class="subMenu">
+                    <li><a href="#">역대 최고 수익자</a></li>
+                    <li><a href="#">최고의 자산가</a></li>
+                </ul>
+            </li>
+            <li><a>게임</a>
+                <ul class="subMenu">
+                    <li><a href="#">복권</a></li>
+                    <li><a href="#">룰렛</a></li>
+                    <li><a href="#">주사위</a></li>
+                </ul>
+            </li>
+                <li class="userId"><a title='보유중인 금액: <%= money %>원'>사용자 이름: <%= userId %></a></li>
+                <li><a href="/logout">로그아웃</a></li>
+            <% } else { %>
+                <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a>주식 거래</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">검색</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>외화 거래</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">검색</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>명예의 전당</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">역대 최고 수익자</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">최고의 자산가</a></li>
+                </ul>
+            </li>
+            <li><a>게임</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
+                </ul>
+            </li>
+                <li><a href="/login">로그인</a></li>
+                <li><a href="/signin">회원가입</a></li>
+            <% } %>
+        </ul>
+    </nav>
+    <div class="stockSearch-container">
+        <form action="/stock_search" method="post">
+            <input type="text" name="query" class="stockSearch-box" placeholder="주식 심볼을 입력해주세요 ex)005930">
+            <button type="submit" class="stockSearch-button">검색</button>
+        </form>
+    </div>
+    <div class="stockList"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="script/main.js"></script>
+    <script>
+        const money = '<%= money %>'
+        function buyStock(stock, quantity, price) {
+            if(money>=price*quantity){
+                
+            }
+            else{
+                alert('보유중인 금액이 부족합니다.');
+                location.reload();
+            }
+        }
+        function sellStock(stock, quantity, price) {
+            
+        }
+        function checkLogin(event) {
+            event.preventDefault();
+            alert('로그인이 필요한 기능입니다.')
+            window.location.href = '/login';
+        }
+        function displayStockResult(stock) {
+            const stockList = document.querySelector('.stockList');
+
+            // 결과를 출력하기 전에 이전에 출력된 내용을 모두 지웁니다.
+            stockList.innerHTML = '';
+
+            // 받은 데이터를 반복하여 각 주식 정보를 화면에 추가합니다.
+            const listItem = document.createElement('li');
+            listItem.textContent = `${stock.companyName} - ${stock.symbol} 가격 : ${stock.price}`;
+
+            // 수량 입력 필드 생성
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.placeholder = '수량 입력';
+
+            // 매수 버튼 생성
+            const buyButton = document.createElement('button');
+            buyButton.textContent = '매수';
+            buyButton.addEventListener('click', function() {
+                const quantity = parseInt(quantityInput.value);
+                const price = parseInt(stock.price);
+                if (!isNaN(quantity) && quantity > 0) {
+                    buyStock(stock.companyName, quantity, price);
+                } else {
+                    console.error('올바른 수량을 입력하세요.');
+                }
+            });
+
+            // 매도 버튼 생성
+            const sellButton = document.createElement('button');
+            sellButton.textContent = '매도';
+            sellButton.addEventListener('click', function() {
+                const quantity = parseInt(quantityInput.value);
+                const price = parseInt(stock.price);
+                if (!isNaN(quantity) && quantity > 0) {
+                    sellStock(stock.companyName, quantity, price);
+                } else {
+                    console.error('올바른 수량을 입력하세요.');
+                }
+            });
+
+            // 리스트 아이템에 수량 입력 필드와 버튼들을 추가합니다.
+            listItem.appendChild(quantityInput);
+            listItem.appendChild(buyButton);
+            listItem.appendChild(sellButton);
+
+            stockList.appendChild(listItem);
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.stockSearch-container form');
+    
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // 폼의 기본 동작 방지
+    
+                const query = form.querySelector('.stockSearch-box').value.trim(); // 입력된 주식 이름 가져오기
+    
+                if (query) {
+                    // 입력된 주식 이름이 있다면, 서버에 POST 요청으로 전송
+                    fetch('/stock_transaction_search', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ query: query })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.log(response);
+                        }
+                        return response.json(); // JSON 형식의 응답을 파싱
+                    })
+                    .then(data => {
+                        // 서버에서 반환된 주식 검색 결과를 표시
+                        displayStockResult(data);
+                    })
+                    .catch(error => {
+                        console.error('에러:', error);
+                    });
+                } else {
+                    alert('주식 심볼을 입력하세요');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

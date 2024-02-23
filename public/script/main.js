@@ -7,5 +7,3 @@ $('.subMenu').mouseover(function(){
 $('.mainMenu > li').mouseout(function(){
     $(this).find('.subMenu').stop().slideUp()
 });
-
-

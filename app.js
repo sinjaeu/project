@@ -11,6 +11,7 @@ const axios = require('axios');
 const request = require('request');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const { error } = require('console');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -29,6 +30,17 @@ app.use(passport.session());
 const symbolsFilePath = 'views\\stock_symbol.json';
 const stockNameFilePath = 'views\\stock_name.json';
 let symbolMap = {};
+
+// JSON 파일을 읽어오는 함수
+function readJSONFile(filePath) {
+    try {
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('JSON 파일을 읽는 도중 에러가 발생했습니다:', error);
+        return null;
+    }
+}
 
 // JSON 파일 읽기
 fs.readFile(symbolsFilePath, 'utf8', (err, data) => {
@@ -111,8 +123,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 메인 페이지 렌더링
 app.get('/', (req, res) => {
-    // 사용자 정보가 세션에 존재하는지 확인하고 렌더링
-    res.render('main', { userId: req.session.user ? req.session.user.username : null });
+    // 사용자 정보가 세션에 존재하는지 확인하고 사용자 이름과 돈 정보를 렌더링
+    const userData = req.session.user;
+    res.render('main', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
 });
 app.get('/login', (req, res) => {
     res.render('login');
@@ -130,6 +143,11 @@ app.get('/reset-password/:temporaryPassword', (req, res) => {
     const { temporaryPassword } = req.params;
     res.render('reset-password', { temporaryPassword });
 });
+app.get('/stock_search', (req, res) => {
+    // 사용자 정보가 세션에 존재하는지 확인하고 사용자 이름과 돈 정보를 렌더링
+    const userData = req.session.user;
+    res.render('stock', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
+});
 // 로그아웃 라우트
 app.get('/logout', (req, res) => {
     req.logout(function(err) {
@@ -143,6 +161,10 @@ app.get('/logout', (req, res) => {
             res.redirect('/');
         }
     });
+});
+app.get('/stock_transaction', (req, res) => {
+    const userData = req.session.user;
+    res.render('stock_transaction', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
 });
 
 // 회원가입 엔드포인트
@@ -211,8 +233,15 @@ app.post('/login', async (req, res) => {
         
         // 사용자가 존재하면 로그인 성공 응답
         if (result.rows.length > 0) {
+            const connection = await oracledb.getConnection(dbConfig);
+
+            const moneyQuery = `SELECT money FROM users WHERE username = :username AND password = :password`;
+            const moneyResult = await connection.execute(moneyQuery, bindParams);
+
+            const money = moneyResult.rows[0][0];
+            await connection.close();
             // 세션에 사용자 정보 설정
-            req.session.user = { username };
+            req.session.user = { username, money };
             res.status(200).json({ message: '로그인 성공!' });
             console.log('로그인 성공 ' + username)
         } else {
@@ -294,7 +323,7 @@ app.post('/reset-password', async (req, res) => {
             // 이메일 내용 구성
             const mailOptions = {
                 from: 'moto73168@gmail.com',
-                to: 'sjq65897245@gmail.com', // 수신자 이메일 주소를 사용자가 입력한 이메일로 설정
+                to: email, // 수신자 이메일 주소를 사용자가 입력한 이메일로 설정
                 subject: '비밀번호 재설정 링크',
                 text: `안녕하세요, ${username}님. 비밀번호를 재설정하려면 다음 링크를 클릭하세요: http://localhost:3000/reset-password/${temporaryPassword}`
             };
@@ -404,6 +433,66 @@ app.post('/stock', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to get stock information' });
+    }
+});
+
+app.post('/stock_search', async (req, res) => {
+    const query = req.body.query; // 클라이언트로부터 받은 검색어
+
+    // JSON 파일에서 주식 데이터를 읽어옴
+    const stocks = readJSONFile('./views/stock_name.json');
+    const stocksArray = Object.keys(stocks).map(key => ({ name: key, symbol: stocks[key] }));
+    if (!stocks) {
+        res.status(500).json({ error: '서버 오류: 주식 데이터를 읽을 수 없습니다.' });
+        return;
+    }
+
+    // 주식 데이터에서 검색어와 비슷한 주식을 찾음
+    const foundStocks = stocksArray.filter(stock => stock.name.includes(query));
+
+    if (foundStocks.length > 0) {
+        // 비슷한 주식이 있으면 해당 주식 정보를 응답으로 전송
+        const stockInfoPromises = foundStocks.map(async stock => {
+            const info = await getStockInfo(stock.symbol);
+            return {
+                ...stock,
+                price: info.price+'원'
+            };
+        });
+
+        // Promise.all을 사용하여 모든 주식 정보를 한 번에 얻습니다.
+        Promise.all(stockInfoPromises)
+            .then(stockInfoArray => {
+                res.json(stockInfoArray);
+            })
+            .catch(error => {
+                console.error('주식 정보를 가져오는 중 에러 발생:', error);
+                res.status(500).json({ error: '주식 정보를 가져오는 중 에러가 발생했습니다.' });
+            });
+    } else {
+        // 비슷한 주식이 없으면 클라이언트에게 에러 메시지를 전송
+        res.status(404).json({ error: '일치하는 주식을 찾을 수 없습니다.' });
+    }
+});
+
+app.post('/stock_transaction_search', async (req, res) => {
+    const query = req.body.query; // 클라이언트로부터 받은 검색어
+
+    try {
+        if(!symbolMap[query]){
+            throw new Error('주식이 존재하지 않습니다.');
+        }
+        // 검색된 주식 심볼에 해당하는 주식 정보를 가져옴
+        const stockInfo = await getStockInfo(query);
+        const companyName = symbolMap[query];
+        stockInfo.companyName = companyName;
+
+        // 클라이언트에게 주식 정보를 응답으로 전송
+        res.json(stockInfo);
+        console.log(stockInfo);
+    } catch (error) {
+        console.error('주식 정보를 가져오는 중 에러 발생:', error);
+        res.status(500).json({ error: '주식 정보를 가져오는 중 에러가 발생했습니다.' });
     }
 });
 

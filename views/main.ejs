@@ -3,37 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>menu</title>
+    <title>메인</title>
     <link rel="stylesheet" type="text/css" href="/CSS/main.css">
 </head>
 <body>
     <nav>
         <ul class="mainMenu">
+            <% if (userId) { %>
             <li><a href="/"><img src="" alt="로고"></a></li>
             <li><a>주식 거래</a>
                 <ul class="subMenu">
-                    <li><a href="#">검색</a></li>
-                    <li><a href="#">매수</a></li>
-                    <li><a href="#">매도</a></li>
+                    <li><a href="/stock_search">검색</a></li>
+                    <li><a href="/stock_transaction">매수 / 매도</a></li>
                 </ul>
             </li>
             <li><a>외화 거래</a>
                 <ul class="subMenu">
-                    <li><a href="#">검색</a></li>
-                    <li><a href="#">매수</a></li>
-                    <li><a href="#">매도</a></li>
+                    <li><a href="/currency_search">검색</a></li>
+                    <li><a href="/currency_transaction">매수 / 매도</a></li>
                 </ul>
             </li>
             <li><a>명예의 전당</a>
                 <ul class="subMenu">
                     <li><a href="#">역대 최고 수익자</a></li>
                     <li><a href="#">최고의 자산가</a></li>
-                </ul>
-            </li>
-            <li><a>게시판</a>
-                <ul class="subMenu">
-                    <li><a href="#">자유 게시판</a></li>
-                    <li><a href="#">공지</a></li>
                 </ul>
             </li>
             <li><a>게임</a>
@@ -43,10 +36,35 @@
                     <li><a href="#">주사위</a></li>
                 </ul>
             </li>
-            <% if (userId) { %>
-                <li><a>사용자 이름: <%= userId %></a></li>
+                <li class="userId"><a title='보유중인 금액: <%= money %>원'>사용자 이름: <%= userId %></a></li>
                 <li><a href="/logout">로그아웃</a></li>
             <% } else { %>
+                <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a>주식 거래</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">검색</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>외화 거래</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">검색</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>명예의 전당</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">역대 최고 수익자</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">최고의 자산가</a></li>
+                </ul>
+            </li>
+            <li><a>게임</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
+                </ul>
+            </li>
                 <li><a href="/login">로그인</a></li>
                 <li><a href="/signin">회원가입</a></li>
             <% } %>
@@ -68,6 +86,11 @@
     </ul>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
+        function checkLogin(event) {
+            event.preventDefault();
+            alert('로그인이 필요한 기능입니다.')
+            window.location.href = '/login';
+        }
         // $(document).ready(function() {
         //     // 서버 엔드포인트 URL
         //     const apiUrl = '/stock';

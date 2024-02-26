@@ -36,8 +36,14 @@
                     <li><a href="#">주사위</a></li>
                 </ul>
             </li>
-                <li class="userId"><a title='보유중인 금액: <%= money %>원'>사용자 이름: <%= userId %></a></li>
-                <li><a href="/logout">로그아웃</a></li>
+            <li class="userInfo">
+                <a>사용자 이름: <%= userId %></a>
+                <ul class="subMenu">
+                    <li><a href="#">내 정보</a></li>
+                    <li><a href="#">내 자산</a></li>
+                    <li><a href="/logout">로그아웃</a></li>
+                </ul>
+            </li>
             <% } else { %>
                 <li><a href="/"><img src="" alt="로고"></a></li>
             <li><a>주식 거래</a>

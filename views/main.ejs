@@ -36,9 +36,22 @@
                     <li><a href="#">주사위</a></li>
                 </ul>
             </li>
-                <li class="userId"><a title='보유중인 금액: <%= money %>원'>사용자 이름: <%= userId %></a></li>
-                <li><a href="/logout">로그아웃</a></li>
-            <% } else { %>
+            <li class="userInfo">
+                <a>사용자 이름: <%= userId %></a>
+                <ul class="subMenu">
+                    <li><a href="#">내 정보</a></li>
+                    <li><a href="#">내 자산</a></li>
+                    <li><a href="/logout">로그아웃</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <div class="imgSlide">
+        <a href="/stock_transaction"><img src="images/stock_image.png" alt="메인 사진 1" class="mainImage"><span class="imgText">주식 거래 바로가기</span></a>
+        <a href="/currency_transaction"><img src="images/currencyRate.png" alt="메인 사진 2" class="mainImage"><span class="imgText">외화 거래 바로가기</span></a>
+        <a href="#"><img src="images/stock_image.png" alt="메인 사진 3" class="mainImage"><span class="imgText">~~ 바로가기</span></a>
+    </div>
+    <% } else { %>
                 <li><a href="/"><img src="" alt="로고"></a></li>
             <li><a>주식 거래</a>
                 <ul class="subMenu">
@@ -67,29 +80,162 @@
             </li>
                 <li><a href="/login">로그인</a></li>
                 <li><a href="/signin">회원가입</a></li>
-            <% } %>
         </ul>
     </nav>
-    <ul id="exchangeRatePrices">
-        <li id="exchange-rate-미국">1 <span id="base-currency-미국"></span> - 매수 : <span id="exchange-rate-BuyValue-미국"></span> <span id="target-currency-미국"></span> 매도 : <span id="exchange-rate-SellValue-미국"></span> <span id="target-currency-미국"></span></li>
-        <li id="exchange-rate-독일">2 <span id="base-currency-독일"></span> - 매수 : <span id="exchange-rate-BuyValue-독일"></span> <span id="target-currency-독일"></span> 매도 : <span id="exchange-rate-SellValue-독일"></span> <span id="target-currency-독일"></span></li>
-        <li id="exchange-rate-일본">3 <span id="base-currency-일본"></span> - 매수 : <span id="exchange-rate-BuyValue-일본"></span> <span id="target-currency-일본"></span> 매도 : <span id="exchange-rate-SellValue-일본"></span> <span id="target-currency-일본"></span></li>
-        <li id="exchange-rate-영국">4 <span id="base-currency-영국"></span> - 매수 : <span id="exchange-rate-BuyValue-영국"></span> <span id="target-currency-영국"></span> 매도 : <span id="exchange-rate-SellValue-영국"></span> <span id="target-currency-영국"></span></li>
-        <li id="exchange-rate-캐나다">5 <span id="base-currency-캐나다"></span> - 매수 : <span id="exchange-rate-BuyValue-캐나다"></span> <span id="target-currency-캐나다"></span> 매도 : <span id="exchange-rate-SellValue-캐나다"></span> <span id="target-currency-캐나다"></span></li>
-        <% if (userId) { %>
-            <a class="exchangeRateButton" href="/currency_transaction"><button>외화 거래 바로가기</button></a>
-        <% } %>
-    </ul>
-    <ul id="stockPrices">
-        <li>1 <span id="stockPrice005930"></span> 가격 : <span id="stockPrice-005930"></span>원</li>
-        <li>2 <span id="stockPrice000660"></span> 가격 : <span id="stockPrice-000660"></span>원</li>
-        <li>3 <span id="stockPrice035720"></span> 가격 : <span id="stockPrice-035720"></span>원</li>
-        <li>4 <span id="stockPrice051910"></span> 가격 : <span id="stockPrice-051910"></span>원</li>
-        <li>5 <span id="stockPrice207940"></span> 가격 : <span id="stockPrice-207940"></span>원</li>
-        <% if (userId) { %>
-            <a class="stockPricesButton" href="/stock_transaction"><button>주식 거래 바로가기</button></a>
-        <% } %>
-    </ul>
+    <div class="imgSlide">
+        <a href="#" onclick="checkLogin(event)"><img src="images/stock_image.png" alt="메인 사진 1" class="mainImage"><span class="imgText">주식 거래 바로가기</span></a>
+        <a href="#" onclick="checkLogin(event)"><img src="images/currencyRate.png" alt="메인 사진 2" class="mainImage"><span class="imgText">외화 거래 바로가기</span></a>
+        <a href="#" onclick="checkLogin(event)"><img src="images/stock_image.png" alt="메인 사진 3" class="mainImage"><span class="imgText">~~ 바로가기</span></a>
+    </div>
+    <% } %>
+    <div class="container">
+        <div class="content-container">
+            <div class="button-container">
+                <button id="showExchangeRate">외화</button>
+                <button id="showStockPrices">주식</button>
+            </div>
+            <ul id="exchangeRatePrices">
+                <li id="exchange-rate-미국">1 <span id="base-currency-미국"></span> - 매수 : <span id="exchange-rate-BuyValue-미국"></span> <span id="target-currency-미국"></span> 매도 : <span id="exchange-rate-SellValue-미국"></span> <span id="target-currency-미국"></span></li>
+                <li id="exchange-rate-독일">2 <span id="base-currency-독일"></span> - 매수 : <span id="exchange-rate-BuyValue-독일"></span> <span id="target-currency-독일"></span> 매도 : <span id="exchange-rate-SellValue-독일"></span> <span id="target-currency-독일"></span></li>
+                <li id="exchange-rate-일본">3 <span id="base-currency-일본"></span> - 매수 : <span id="exchange-rate-BuyValue-일본"></span> <span id="target-currency-일본"></span> 매도 : <span id="exchange-rate-SellValue-일본"></span> <span id="target-currency-일본"></span></li>
+                <li id="exchange-rate-영국">4 <span id="base-currency-영국"></span> - 매수 : <span id="exchange-rate-BuyValue-영국"></span> <span id="target-currency-영국"></span> 매도 : <span id="exchange-rate-SellValue-영국"></span> <span id="target-currency-영국"></span></li>
+                <li id="exchange-rate-캐나다">5 <span id="base-currency-캐나다"></span> - 매수 : <span id="exchange-rate-BuyValue-캐나다"></span> <span id="target-currency-캐나다"></span> 매도 : <span id="exchange-rate-SellValue-캐나다"></span> <span id="target-currency-캐나다"></span></li>
+                <% if (userId) { %>
+                    <a class="exchangeRateButton" href="/currency_transaction"><button>외화 거래 바로가기</button></a>
+                <% } %>
+            </ul>
+            <ul id="stockPrices">
+                <li>1 <span id="stockPrice005930"></span> 가격 : <span id="stockPrice-005930"></span>원</li>
+                <li>2 <span id="stockPrice000660"></span> 가격 : <span id="stockPrice-000660"></span>원</li>
+                <li>3 <span id="stockPrice035720"></span> 가격 : <span id="stockPrice-035720"></span>원</li>
+                <li>4 <span id="stockPrice051910"></span> 가격 : <span id="stockPrice-051910"></span>원</li>
+                <li>5 <span id="stockPrice207940"></span> 가격 : <span id="stockPrice-207940"></span>원</li>
+                <% if (userId) { %>
+                    <a class="stockPricesButton" href="/stock_transaction"><button>주식 거래 바로가기</button></a>
+                <% } %>
+            </ul>
+        </div>
+        <div class="faq-section">
+            <h2>자주 묻는 질문 FAQ</h2>
+            <ul>
+                <li>
+                    <h3>외화 거래는 어떻게 하나요?</h3>
+                    <p>외화 거래를 하려면 먼저 회원 가입 후 로그인을 하셔야 합니다. 그런 다음 외화 거래 페이지로 이동하여 거래를 시작할 수 있습니다.</p>
+                </li>
+                <li>
+                    <h3>주식 거래에는 어떤 종목이 있나요?</h3>
+                    <p>주식 거래에는 국내 상장 주식 전부를 거래하실 수 있습니다.</p>
+                </li>
+                <li>
+                    <h3>외화는 어떤 종류가 있나요?</h3>
+                    <p>현재 외화는 브라질 사우디아라비아 캄보디아 캐나다 스페인 아랍에미리트 이란 이탈리아 인도 중국 프랑스 한국 터키 독일 러시아 남아프리카 멕시코 미국 유럽 일본 영국 호주까지만 지원하고 있습니다.</p>
+                </li>
+                <li>
+                    <h3>비밀번호를 잃어버렸어요</h3>
+                    <p>로그인 페이지에서 비밀번호 변경을 클릭하여 비밀번호를 변경해주세요.</p>
+                </li>
+                <li>
+                    <h3>아이디를 잃어버렸어요</h3>
+                    <p>로그인 페이지에서 아이디 찾기를 통해 아이디를 찾아주세요.</p>
+                </li>
+                <li>
+                    <h3>초기 자금은 얼마인가요?</h3>
+                    <p>현재 초기 자금은 100만원으로 운영되고 있습니다.</p>
+                </li>
+                <li>
+                    <h3>왜 해외 주식은 없나요?</h3>
+                    <p>해외 주식은 국내 주식과 화폐의 종류가 다르고 데이터를 가져오기 어려워 넣지 못하였습니다.</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <% if (userId) { %>
+        <footer>
+            <h3>사이트맵</h3>
+            <ul class="siteMap">
+                <li><a href="/">홈</a></li>
+                <li>
+                    <a>주식</a>
+                    <ul class="subSiteMap">
+                        <li><a href="/stock_search">주식 검색</a></li>
+                        <li><a href="/stock_transaction">주식 거래</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>외화</a>
+                    <ul class="subSiteMap">
+                        <li><a href="/currency_search">외화 검색</a></li>
+                        <li><a href="/currency_transaction">외화 거래</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>명예의 전당</a>
+                    <ul class="subSiteMap">
+                        <li><a href="/best_earner">역대 최고 수익자</a></li>
+                        <li><a href="/richest_person">최고의 자산가</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>게임</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#">복권</a></li>
+                        <li><a href="#">룰렛</a></li>
+                        <li><a href="#">주사위</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>사용자 정보</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#">내 정보</a></li>
+                        <li><a href="#">내 자산</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </footer>
+    <%} else { %>
+        <footer>
+            <h3>사이트맵</h3>
+            <ul class="siteMap">
+                <li><a href="/">홈</a></li>
+                <li>
+                    <a>주식 거래</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">주식 검색</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">주식 거래</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>외화 거래</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">외화 검색</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">외화 거래</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>명예의 전당</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">역대 최고 수익자</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">최고의 자산가</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>게임</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>사용자 정보</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">내 정보</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">내 자산</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </footer>
+    <% } %>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         function checkLogin(event) {

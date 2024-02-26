@@ -7,10 +7,15 @@
     list-style: none;
 }
 
+body{
+    background-color: #B0C4DE;
+}
+
 .mainMenu {
     width: 100%;
     height: 100px;
     background-color: #777;
+    z-index: 100;
 }
 
 .mainMenu {
@@ -44,6 +49,7 @@
     left: 0;
     width: 150%;
     background-color: #777;
+    z-index: 100;
 }
 
 .subMenu > li > a {
@@ -83,6 +89,185 @@
     text-decoration: none;
     color: white;
 }
-#exchangeRatePrices > li{
-    color: black;
+
+.imgSlide {
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+    margin: 50px auto; /* 수평 가운데 정렬을 위해 좌우 마진을 자동으로 설정합니다. */
+    display: flex; /* 내부 요소를 수평 가운데 정렬하기 위해 Flexbox를 사용합니다. */
+    justify-content: center; /* 내부 요소를 수평으로 가운데 정렬합니다. */
+    align-items: center; /* 내부 요소를 수직으로 가운데 정렬합니다. */
+}
+
+.imgSlide > a {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform 0.5s ease; /* 슬라이드 전환 시 부드러운 애니메이션 */
+}
+
+.imgSlide > a > img {
+    width: 100%;
+    height: auto; /* 높이를 자동으로 조정하여 이미지 비율 유지 */
+    object-fit: cover; /* 이미지가 찌그러지지 않고 잘리지 않도록 보장 */
+}
+
+.imgText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5); /* 이미지 설명 배경색 및 투명도 조절 가능 */
+    color: white;
+    padding: 10px 20px; /* 이미지 설명 여백 조절 가능 */
+    border-radius: 5px; /* 이미지 설명 모서리 둥글게 조절 가능 */
+}
+
+.container {
+    display: flex;
+    flex-direction: row; /* 컨테이너 안의 요소들을 세로로 배열합니다. */
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-bottom: 100px;
+}
+
+.button-container {
+    display: flex;
+}
+
+.button-container button {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.button-container button:hover {
+    background-color: #ddd;
+}
+
+.content-container {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+}
+
+#showExchangeRate{
+    background-color: #c0c0c0;
+}
+
+#exchangeRatePrices,
+#stockPrices {
+    width: 100%; /* 가격 리스트를 반씩 차지하도록 설정합니다. */
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#exchangeRatePrices li,
+#stockPrices li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+#exchangeRatePrices li:last-child,
+#stockPrices li:last-child {
+    border-bottom: none;
+}
+
+#exchangeRatePrices li span,
+#stockPrices li span {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+#exchangeRatePrices .exchangeRateButton button, #stockPrices .stockPricesButton button {
+    margin-top: 10px; /* 버튼과 항목 사이 간격 조절 */
+    padding: 5px 10px; /* 버튼 내부 여백 */
+    background-color: #007bff; /* 버튼 배경색 */
+    color: #fff; /* 버튼 글자색 */
+    border: none; /* 테두리 제거 */
+    border-radius: 3px; /* 버튼 모서리 둥글게 */
+    cursor: pointer; /* 마우스 커서를 포인터로 변경 */
+}
+
+#exchangeRatePrices .exchangeRateButton button:hover, #stockPrices .stockPricesButton button:hover {
+    background-color: #0056b3; /* 호버 상태 배경색 */
+}
+
+.faq-section {
+    display: flex;
+    flex-direction: column;
+    width: 45%; /* FAQ 섹션을 반씩 차지하도록 설정합니다. */
+    margin-top: 20px;
+    margin-left: auto;
+    overflow-y: auto;
+    max-height: 400px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    line-height: 30px;
+    border-radius: 10px;
+}
+
+.faq-section > ul > li {
+    border: 1px solid black;
+    margin: 5px;
+    padding: 5px;
+}
+
+footer {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    height: 300px;
+}
+
+.siteMap {
+    width: 45%;
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    padding: 10px;
+    margin: 20px;
+}
+
+.siteMap li {
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.siteMap a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.subSiteMap {
+    list-style-type: none;
+}
+
+.subSiteMap li {
+    margin-bottom: 5px;
+}
+
+.subSiteMap a {
+    color: #666;
+    font-weight: normal;
+}
+
+h3 {
+    color: #555;
+    margin-bottom: 10px;
+    font-size: 25px;
+    text-align: left;
+    margin-left: 30px;
 }

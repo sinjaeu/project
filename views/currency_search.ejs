@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>외화 검색</title>
+    <link rel="stylesheet" href="/CSS/main.css">
+</head>
+<body>
+    <nav>
+        <ul class="mainMenu">
+            <% if (userId) { %>
+            <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a>주식 거래</a>
+                <ul class="subMenu">
+                    <li><a href="/stock_search">검색</a></li>
+                    <li><a href="/stock_transaction">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>외화 거래</a>
+                <ul class="subMenu">
+                    <li><a href="/currency_search">검색</a></li>
+                    <li><a href="/currency_transaction">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>명예의 전당</a>
+                <ul class="subMenu">
+                    <li><a href="/best_earner">역대 최고 수익자</a></li>
+                    <li><a href="/richest_person">최고의 자산가</a></li>
+                </ul>
+            </li>
+            <li><a>게임</a>
+                <ul class="subMenu">
+                    <li><a href="#">복권</a></li>
+                    <li><a href="#">룰렛</a></li>
+                    <li><a href="#">주사위</a></li>
+                </ul>
+            </li>
+                <li class="userId"><a title='보유중인 금액: <%= money %>원'>사용자 이름: <%= userId %></a></li>
+                <li><a href="/logout">로그아웃</a></li>
+            <% } else { %>
+                <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a>주식 거래</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">검색</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>외화 거래</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">검색</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>명예의 전당</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">역대 최고 수익자</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">최고의 자산가</a></li>
+                </ul>
+            </li>
+            <li><a>게임</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
+                </ul>
+            </li>
+                <li><a href="/login">로그인</a></li>
+                <li><a href="/signin">회원가입</a></li>
+            <% } %>
+        </ul>
+    </nav>
+    <div class="currency_search-container">
+        <form action="/currency_search" method="post">
+            <input type="text" name="query" class="currency_search-box" placeholder="나라 이름을 입력해주세요">
+            <button type="submit" class="currency_search-button">검색</button>
+        </form>
+    </div>
+    <p class="warning"><span><주의!></span> 외화 검색 가격과 실시간 가격은 차이가 있을 수 있습니다.</p>
+    <div class="currencyList"><li class="currency"></li></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="script/main.js"></script>
+    <script>
+        function checkLogin(event) {
+            event.preventDefault();
+            alert('로그인이 필요한 기능입니다.')
+            window.location.href = '/login';
+        }
+        function displayCurrencyResult(data) {
+            const currencyList = document.querySelector('.currencyList');
+
+            // 결과를 출력하기 전에 이전에 출력된 내용을 모두 지웁니다.
+            currencyList.innerHTML = '';
+
+            // 받은 데이터를 화면에 추가합니다.
+            const listItem = document.createElement('li');
+            listItem.textContent = `환율 정보 ${data.symbol} - 매수: ${data.exchangeRateBuy}, 매도: ${data.exchangeRateSell}`;
+            currencyList.appendChild(listItem);
+
+            // 환율 구매 바로가기 버튼 추가
+            const buyButtonContainer = document.createElement('div');
+            const buyButtonLink = document.createElement('a');
+            buyButtonLink.href = '/currency_transaction';
+            buyButtonLink.classList.add('go_currencyBuy');
+            const buyButton = document.createElement('button');
+            buyButton.textContent = '외화 구매 바로가기';
+            buyButtonLink.appendChild(buyButton);
+            buyButtonContainer.appendChild(buyButtonLink);
+            currencyList.appendChild(buyButtonContainer);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.currency_search-container form');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // 폼의 기본 동작 방지
+
+                const query = form.querySelector('.currency_search-box').value.trim(); // 입력된 나라 이름 가져오기
+
+                if (query) {
+                    // 입력된 나라 이름이 있다면, 서버에 POST 요청으로 전송
+                    fetch('/currency_search', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ query: query })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('네트워크 오류');
+                        }
+                        return response.json(); // JSON 형식의 응답을 파싱
+                    })
+                    .then(data => {
+                        // 서버에서 반환된 환율 검색 결과를 표시
+                        displayCurrencyResult(data);
+                    })
+                    .catch(error => {
+                        console.error('에러:', error);
+                    });
+                } else {
+                    alert('나라 이름을 입력하세요');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

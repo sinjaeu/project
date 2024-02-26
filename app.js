@@ -28,8 +28,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const symbolsFilePath = 'views\\stock_symbol.json';
-const stockNameFilePath = 'views\\stock_name.json';
+const symbolsFilePathCurrency = 'views\\currency_symbol.json';
 let symbolMap = {};
+let currencyMap = {};
 
 // JSON 파일을 읽어오는 함수
 function readJSONFile(filePath) {
@@ -51,6 +52,43 @@ fs.readFile(symbolsFilePath, 'utf8', (err, data) => {
   // JSON 문자열을 JavaScript 객체로 파싱
   symbolMap = JSON.parse(data);
 });
+
+// JSON 파일 읽기
+fs.readFile(symbolsFilePathCurrency, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Failed to read symbols JSON file:', err);
+      return;
+    }
+    // JSON 문자열을 JavaScript 객체로 파싱
+    currencyMap = JSON.parse(data);
+});
+
+// JSON 파일을 읽고 해당 나라의 심볼을 찾아 응답하는 함수
+function findCurrencySymbol(query, callback) {
+    // JSON 파일 경로 설정
+    const filePath = path.join(__dirname, './views/currency_name.json');
+
+    // JSON 파일에서 데이터 읽기
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('JSON 파일을 읽는 도중 오류가 발생했습니다:', err);
+            return callback(new Error('서버 오류: JSON 파일을 읽을 수 없습니다.'));
+        }
+
+        // JSON 데이터 파싱
+        const currencyData = JSON.parse(data);
+
+        // 주어진 나라에 해당하는 심볼 찾기
+        const symbol = currencyData[query];
+
+        if (!symbol) {
+            return callback(new Error('주어진 나라에 대한 심볼을 찾을 수 없습니다.'));
+        }
+
+        // 찾은 심볼을 콜백 함수에 전달
+        callback(null, symbol);
+    });
+};
 
 // Oracle DB 연결 정보
 const dbConfig = {
@@ -82,6 +120,36 @@ async function getStockInfo(symbol) {
         symbol: symbol,
         price: currentPrice
     };
+}
+async function getExchangeRate(baseCurrency, targetCurrency) {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    const target = baseCurrency + targetCurrency;
+    await page.goto(`https://finance.naver.com/marketindex/exchangeDailyQuote.nhn?marketindexCd=FX_${target}`);
+
+    // 환율 정보 가져오기
+    const exchangeRateBuyElement = await page.$('body > div > table > tbody > tr:nth-child(1) > td:nth-child(4)');
+    const exchangeRateSellElement = await page.$('body > div > table > tbody > tr:nth-child(1) > td:nth-child(5)');    
+
+    const exchangeRateBuy = await page.evaluate(element => element.textContent, exchangeRateBuyElement);
+    const exchangeRateSell = await page.evaluate(element => element.textContent, exchangeRateSellElement);
+
+    // 공백과 개행 문자를 제거하고 숫자와 소수점만 남깁니다.
+    const cleanBuyText = exchangeRateBuy.replace(/[^\d.]/g, '');
+    const cleanSellText = exchangeRateSell.replace(/[^\d.]/g, '');
+
+    // 소수점 이하를 제거하고 정수로 변환합니다.
+    const buyRate = parseInt(cleanBuyText, 10);
+    const sellRate = parseInt(cleanSellText, 10);
+
+    // 결과를 객체로 반환합니다.
+    const result = {
+        symbol : baseCurrency,
+        buy: buyRate,
+        sell: sellRate
+    };
+    await browser.close();
+    return result;
 }
 
 // 사용자 인증을 위한 LocalStrategy 설정
@@ -148,6 +216,10 @@ app.get('/stock_search', (req, res) => {
     const userData = req.session.user;
     res.render('stock', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
 });
+app.get('/currency_search', (req, res) => {
+    const userData = req.session.user;
+    res.render('currency_search', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
+})
 // 로그아웃 라우트
 app.get('/logout', (req, res) => {
     req.logout(function(err) {
@@ -165,6 +237,18 @@ app.get('/logout', (req, res) => {
 app.get('/stock_transaction', (req, res) => {
     const userData = req.session.user;
     res.render('stock_transaction', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
+});
+app.get('/currency_transaction', (req, res) => {
+    const userData = req.session.user;
+    res.render('currency_transaction', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
+});
+app.get('/best_earner', (req, res) => {
+    const userData = req.session.user;
+    res.render('best_earner', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
+});
+app.get('/richest_person', (req, res) => {
+    const userData = req.session.user;
+    res.render('richest_person', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
 });
 
 // 회원가입 엔드포인트
@@ -386,40 +470,6 @@ app.post('/new-password', async (req, res) => {
     }
 });
 
-app.post('/exchange-rates', (req, res) => {
-    const apiKey = '5f6a9040d78420e3182fbcf4'; // ExchangeRate-API에서 발급받은 API 키
-
-    // 요청 본문에서 기준 통화와 대상 통화를 가져옵니다.
-    const { baseCurrency, targetCurrency } = req.body;
-    console.log(baseCurrency)
-
-    // ExchangeRate-API에 요청을 보내는 URL을 생성합니다.
-    const url = `https://v6.exchangerate-api.com/v6/${apiKey}/pair/${baseCurrency}/${targetCurrency}`;
-
-    // 요청을 보냅니다.
-    request.get({
-        url: url,
-        json: true,
-        headers: { 'User-Agent': 'request' }
-    }, (err, response, data) => {
-        if (err) {
-            console.error('Error:', err);
-            res.status(500).json({ error: 'Internal Server Error' });
-        } else if (response.statusCode !== 200) {
-            console.error('Status:', response.statusCode);
-            res.status(response.statusCode).json({ error: 'Failed to fetch exchange rates' });
-        } else {
-            const rate = data.conversion_rate;
-            console.log('Exchange rate:', rate);
-            console.log('Base currency:', data.base_code);
-            console.log('Target currency:', data.target_code);
-            console.log('Last update:', data.time_last_update_utc);
-            // 가져온 환율 정보를 응답합니다.
-            res.json({ rate: rate, base: baseCurrency, target: targetCurrency });
-        }
-    });
-});
-
 app.post('/stock', async (req, res) => {
     try {
         const { symbol } = req.body;
@@ -492,7 +542,349 @@ app.post('/stock_transaction_search', async (req, res) => {
         console.log(stockInfo);
     } catch (error) {
         console.error('주식 정보를 가져오는 중 에러 발생:', error);
-        res.status(500).json({ error: '주식 정보를 가져오는 중 에러가 발생했습니다.' });
+        res.status(500).json({ error: '주식 정보를 가져오는 중 에러 발생: ' + error.message});
+    }
+});
+
+app.post('/buy_stock', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        const { stock, quantity, price } = req.body; // 클라이언트에서 전송된 심볼과 수량을 추출합니다.
+        const username = req.session.user.username;
+
+        // 주식 보유 테이블에서 해당 사용자의 해당 주식 보유 수량을 조회합니다.
+        const querySelect = 'SELECT quantity FROM stock_holdings WHERE username = :username AND stock = :stock';
+        const resultSelect = await connection.execute(querySelect, { username: username, stock: stock });
+
+        if (resultSelect.rows.length === 0) {
+            // 사용자가 해당 주식을 보유하고 있지 않은 경우, 새로운 레코드를 추가합니다.
+            const queryInsert = 'INSERT INTO stock_holdings (username, stock, quantity) VALUES (:username, :stock, :quantity)';
+            const resultInsert = await connection.execute(queryInsert, { username: username, stock: stock, quantity: quantity });
+        } else {
+            // 사용자가 이미 해당 주식을 보유하고 있는 경우, 보유 수량을 늘립니다.
+            const currentQuantity = resultSelect.rows[0][0]; // 현재 보유 수량
+            const updatedQuantity = currentQuantity + quantity;
+
+            // 주식 보유 테이블에서 보유 수량을 업데이트합니다.
+            const queryUpdate = 'UPDATE stock_holdings SET quantity = :updatedQuantity WHERE username = :username AND stock = :stock';
+            await connection.execute(queryUpdate, { updatedQuantity: updatedQuantity, username: username, stock: stock });
+
+            await connection.commit();
+        }
+
+        // 사용자 테이블에서 현재 사용자의 돈을 조회합니다.
+        const queryUser = 'SELECT money FROM users WHERE username = :username';
+        const resultUser = await connection.execute(queryUser, { username: username });
+        const currentMoney = resultUser.rows[0][0]; // 현재 사용자의 돈
+
+        // 사용자 테이블에서 현재 사용자의 돈을 업데이트합니다.
+        const updatedMoney = currentMoney - price * quantity;
+        req.session.user.money = updatedMoney;
+        const queryUpdateMoney = 'UPDATE users SET money = :updatedMoney WHERE username = :username';
+        await connection.execute(queryUpdateMoney, { updatedMoney: updatedMoney, username: username });
+
+        const queryTrade_count = 'UPDATE users SET transaction_count = transaction_count + 1 WHERE username = :username'
+        await connection.execute(queryTrade_count, { username : username });
+
+        await connection.commit();
+        await connection.close();
+
+        // 데이터베이스에 성공적으로 주식 정보를 저장했을 경우 클라이언트에 응답합니다.
+        res.status(200).json({ message: '주식을 성공적으로 구매했습니다.' });
+    } catch (error) {
+        // 오류 발생 시 클라이언트에 에러 메시지를 응답합니다.
+        console.error('주식 구매 중 오류 발생:', error);
+        res.status(500).json({ error: '주식 구매 중 오류가 발생했습니다.' });
+    }
+});
+
+app.post('/sell_stock', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        const username = req.session.user.username;
+        const { stock, price, quantity } = req.body; // 클라이언트에서 전송된 사용자 이름, 주식 종목, 판매 가격을 추출합니다.
+
+        // 주식 보유 테이블에서 해당 사용자의 보유 주식 수를 조회합니다.
+        const querySelect = 'SELECT quantity FROM stock_holdings WHERE username = :username AND stock = :stock';
+        const resultSelect = await connection.execute(querySelect, { username: username, stock: stock });
+        
+        if (resultSelect.rows.length === 0) {
+            throw new Error('해당 주식을 보유하고 있지 않습니다.');
+        }
+
+        const stockQuantity = resultSelect.rows[0][0]; // 조회된 주식의 수
+
+        if (quantity <= 0) {
+            throw new Error('판매할 주식의 수량을 0보다 크게 입력하세요.');
+        }
+
+        if (stockQuantity < quantity) {
+            throw new Error('보유 중인 주식보다 많은 양을 선택하셨습니다.');
+        }
+
+        // 주식 판매 후 주식 보유 테이블에서 해당 사용자의 보유 주식 수량을 업데이트합니다.
+        const updatedQuantity = stockQuantity - quantity;
+        const queryUpdate = 'UPDATE stock_holdings SET quantity = :updatedQuantity WHERE username = :username AND stock = :stock';
+        await connection.execute(queryUpdate, { updatedQuantity: updatedQuantity, username: username, stock: stock });
+
+        // 사용자 테이블에서 현재 사용자의 돈을 조회합니다.
+        const queryUser = 'SELECT money FROM users WHERE username = :username';
+        const resultUser = await connection.execute(queryUser, { username: username });
+        const currentMoney = resultUser.rows[0][0]; // 현재 사용자의 돈
+
+        // 판매한 주식의 가격을 현재 돈에 더합니다.
+        const updatedMoney = currentMoney + price * quantity;
+        req.session.user.money = updatedMoney;
+
+        // 사용자 테이블에서 현재 사용자의 돈을 업데이트합니다.
+        const queryUpdateMoney = 'UPDATE users SET money = :updatedMoney WHERE username = :username';
+        await connection.execute(queryUpdateMoney, { updatedMoney: updatedMoney, username: username });
+
+        // 판매 성공 메시지를 클라이언트에 응답합니다.
+        res.status(200).json({ message: '주식을 성공적으로 판매했습니다.' });
+        const queryTrade_count = 'UPDATE users SET transaction_count = transaction_count + 1 WHERE username = :username'
+        await connection.execute(queryTrade_count, { username : username });
+        
+        await connection.commit();
+        await connection.close();
+    } catch (error) {
+        console.error('주식 판매 중 오류 발생:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/currency_search', async (req, res) => {
+    try {
+        // 클라이언트로부터 나라 이름을 받아옴
+        const { query } = req.body;
+
+        // 심볼을 찾고 응답을 클라이언트에 전송
+        findCurrencySymbol(query, async (error, symbol) => {
+            if (error) {
+                console.error('오류 발생:', error.message);
+                return res.status(500).json({ error: error.message });
+            }
+
+            try {
+                console.log(symbol);
+                const exchangeRate = await getExchangeRate(symbol, "KRW");
+
+                // 클라이언트에게 환율 정보 전송
+                res.status(200).json({ symbol: symbol, exchangeRateBuy: exchangeRate.buy, exchangeRateSell: exchangeRate.sell });
+            } catch (error) {
+                console.error('환율 정보를 가져오는 중 오류 발생:', error.message);
+                res.status(500).json({ error: '환율 정보를 가져오는 중 오류가 발생했습니다.' });
+            }
+        });
+    } catch (error) {
+        console.error('오류 발생:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+app.post('/currency_transaction_search', async (req, res) => {
+    const query = req.body.query; // 클라이언트로부터 받은 검색어
+
+    try {
+        if(!currencyMap[query]){
+            throw new Error('외화가 존재하지 않습니다.');
+        }
+        // 검색된 외화 심볼에 해당하는 외화 정보를 가져옴
+        const currencyInfo = await getExchangeRate(query, "KRW");
+        const countryName = currencyMap[query];
+        currencyInfo.countryName = countryName;
+
+        // 클라이언트에게 외화 정보를 응답으로 전송
+        res.json(currencyInfo);
+        console.log(currencyInfo);
+    } catch (error) {
+        console.error('외화 정보를 가져오는 중 에러 발생:', error);
+        res.status(500).json({ error: '외화 정보를 가져오는 중 에러 발생: ' + error.message});
+    }
+});
+
+app.post('/buy_currency', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        const { currency, quantity, price } = req.body; // 클라이언트에서 전송된 심볼과 수량을 추출합니다.
+        const username = req.session.user.username;
+
+        // 외화 보유 테이블에서 해당 사용자의 해당 외화 보유 수량을 조회합니다.
+        const querySelect = 'SELECT quantity FROM currency_holdings WHERE username = :username AND currency = :currency';
+        const resultSelect = await connection.execute(querySelect, { username: username, currency: currency });
+        if (resultSelect.rows.length === 0) {
+            // 사용자가 해당 외화를 보유하고 있지 않은 경우, 새로운 레코드를 추가합니다.
+            const queryInsert = 'INSERT INTO currency_holdings (username, currency, quantity) VALUES (:username, :currency, :quantity)';
+            const resultInsert = await connection.execute(queryInsert, { username: username, currency: currency, quantity: quantity });
+            console.log(2)
+        } else {
+            // 사용자가 이미 해당 외화를 보유하고 있는 경우, 보유 수량을 늘립니다.
+            const currentQuantity = resultSelect.rows[0][0]; // 현재 보유 수량
+            const updatedQuantity = currentQuantity + quantity;
+
+            // 외화 보유 테이블에서 보유 수량을 업데이트합니다.
+            const queryUpdate = 'UPDATE currency_holdings SET quantity = :updatedQuantity WHERE username = :username AND currency = :currency';
+            await connection.execute(queryUpdate, { updatedQuantity: updatedQuantity, username: username, currency: currency });
+
+            await connection.commit();
+        }
+
+        // 사용자 테이블에서 현재 사용자의 돈을 조회합니다.
+        const queryUser = 'SELECT money FROM users WHERE username = :username';
+        const resultUser = await connection.execute(queryUser, { username: username });
+        const currentMoney = resultUser.rows[0][0]; // 현재 사용자의 돈
+
+        // 사용자 테이블에서 현재 사용자의 돈을 업데이트합니다.
+        const updatedMoney = currentMoney - price * quantity;
+        req.session.user.money = updatedMoney;
+        const queryUpdateMoney = 'UPDATE users SET money = :updatedMoney WHERE username = :username';
+        await connection.execute(queryUpdateMoney, { updatedMoney: updatedMoney, username: username });
+
+        const queryTrade_count = 'UPDATE users SET transaction_count = transaction_count + 1 WHERE username = :username'
+        await connection.execute(queryTrade_count, { username : username });
+        
+        await connection.commit();
+        await connection.close();
+
+        // 데이터베이스에 성공적으로 주식 정보를 저장했을 경우 클라이언트에 응답합니다.
+        res.status(200).json({ message: '외화 성공적으로 구매했습니다.' });
+        console.log(req.session.user.money);
+    } catch (error) {
+        // 오류 발생 시 클라이언트에 에러 메시지를 응답합니다.
+        console.error('외화 구매 중 오류 발생:', error);
+        res.status(500).json({ error: '외화 구매 중 오류가 발생했습니다.' });
+    }
+});
+
+app.post('/sell_currency', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        const username = req.session.user.username;
+        const { currency, price, quantity } = req.body; // 클라이언트에서 전송된 사용자 이름, 외화, 판매 가격을 추출합니다.
+
+        // 외화 보유 테이블에서 해당 사용자의 보유 외화 수를 조회합니다.
+        const querySelect = 'SELECT quantity FROM currency_holdings WHERE username = :username AND currency = :currency';
+        const resultSelect = await connection.execute(querySelect, { username: username, currency: currency });
+        
+        if (resultSelect.rows.length === 0) {
+            throw new Error('해당 외화를 보유하고 있지 않습니다.');
+        }
+
+        const stockQuantity = resultSelect.rows[0][0]; // 조회된 외화의 수
+
+        if (quantity <= 0) {
+            throw new Error('판매할 외화의 수량을 0보다 크게 입력하세요.');
+        }
+
+        if (stockQuantity < quantity) {
+            throw new Error('보유 중인 외화보다 많은 양을 선택하셨습니다.');
+        }
+
+        // 외화 판매 후 외화 보유 테이블에서 해당 사용자의 보유 외화 수량을 업데이트합니다.
+        const updatedQuantity = stockQuantity - quantity;
+        const queryUpdate = 'UPDATE currency_holdings SET quantity = :updatedQuantity WHERE username = :username AND currency = :currency';
+        await connection.execute(queryUpdate, { updatedQuantity: updatedQuantity, username: username, currency: currency });
+
+        // 사용자 테이블에서 현재 사용자의 돈을 조회합니다.
+        const queryUser = 'SELECT money FROM users WHERE username = :username';
+        const resultUser = await connection.execute(queryUser, { username: username });
+        const currentMoney = resultUser.rows[0][0]; // 현재 사용자의 돈
+
+        // 판매한 외화의 가격을 현재 돈에 더합니다.
+        const updatedMoney = currentMoney + price * quantity;
+        req.session.user.money = updatedMoney;
+
+        // 사용자 테이블에서 현재 사용자의 돈을 업데이트합니다.
+        const queryUpdateMoney = 'UPDATE users SET money = :updatedMoney WHERE username = :username';
+        await connection.execute(queryUpdateMoney, { updatedMoney: updatedMoney, username: username });
+
+        // 판매 성공 메시지를 클라이언트에 응답합니다.
+        res.status(200).json({ message: '외화를 성공적으로 판매했습니다.' });
+
+        const queryTrade_count = 'UPDATE users SET transaction_count = transaction_count + 1 WHERE username = :username'
+        await connection.execute(queryTrade_count, { username : username });
+        
+        await connection.commit();
+        await connection.close();
+        console.log(req.session.user.money);
+    } catch (error) {
+        console.error('외화 판매 중 오류 발생:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/best_earner', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        // 사용자별 거래 횟수와 거래로 얻은 이익, 초기 자금을 조회합니다.
+        const query = `
+            SELECT 
+                username, 
+                transaction_count, 
+                CASE 
+                    WHEN transaction_count = 0 THEN money - 100000
+                    ELSE (money - 100000) / transaction_count
+                END AS total_profit
+            FROM 
+                users
+            ORDER BY 
+                total_profit DESC
+            FETCH FIRST 10 ROWS ONLY
+        `;
+        const result = await connection.execute(query);
+
+        const data = result.rows.map(row => {
+            const username = row[0];
+            const numTransactions = row[1];
+            const totalProfit = row[2];
+            let profitPerTransaction
+            if(numTransactions==0 || totalProfit==0){
+                profitPerTransaction = 0
+            }
+            else{
+                profitPerTransaction = totalProfit/numTransactions;
+            }
+            return [username, numTransactions, totalProfit, profitPerTransaction];
+        });
+
+        await connection.close();
+
+        // 클라이언트에 결과를 전송합니다.
+        res.status(200).json({ data: data });
+        console.log(data);
+    } catch (error) {
+        console.error('역대 최고의 수익자 조회 중 오류 발생:', error);
+        res.status(500).json({ error: '역대 최고의 수익자 조회 중 오류가 발생했습니다.' });
+    }
+});
+
+app.post('/richest_person', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        // 사용자 테이블에서 돈을 기준으로 내림차순으로 정렬하여 상위 10명의 이름과 돈을 가져옵니다.
+        const query = `
+            SELECT username, money
+            FROM (
+                SELECT username, money, ROW_NUMBER() OVER (ORDER BY money DESC) AS rank
+                FROM users
+            )
+            WHERE rank <= 10
+        `;
+        const result = await connection.execute(query);
+
+        await connection.close();
+
+        // 결과를 클라이언트에 응답합니다.
+        res.status(200).json({ data: result.rows });
+        console.log(result.rows)
+    } catch (error) {
+        console.error('데이터베이스 조회 중 오류 발생:', error);
+        res.status(500).json({ error: '데이터베이스 조회 중 오류가 발생했습니다.' });
     }
 });
 

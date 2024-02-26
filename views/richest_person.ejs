@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최고의 자산가</title>
+    <link rel="stylesheet" href="/CSS/main.css">
+</head>
+<body>
+    <nav>
+        <ul class="mainMenu">
+            <% if (userId) { %>
+            <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a>주식 거래</a>
+                <ul class="subMenu">
+                    <li><a href="/stock_search">검색</a></li>
+                    <li><a href="/stock_transaction">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>외화 거래</a>
+                <ul class="subMenu">
+                    <li><a href="/currency_search">검색</a></li>
+                    <li><a href="/currency_transaction">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>명예의 전당</a>
+                <ul class="subMenu">
+                    <li><a href="/best_earner">역대 최고 수익자</a></li>
+                    <li><a href="/richest_person">최고의 자산가</a></li>
+                </ul>
+            </li>
+            <li><a>게임</a>
+                <ul class="subMenu">
+                    <li><a href="#">복권</a></li>
+                    <li><a href="#">룰렛</a></li>
+                    <li><a href="#">주사위</a></li>
+                </ul>
+            </li>
+                <li class="userId"><a title='보유중인 금액: <%= money %>원'>사용자 이름: <%= userId %></a></li>
+                <li><a href="/logout">로그아웃</a></li>
+            <% } else { %>
+                <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a>주식 거래</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">검색</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>외화 거래</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">검색</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">매수 / 매도</a></li>
+                </ul>
+            </li>
+            <li><a>명예의 전당</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">역대 최고 수익자</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">최고의 자산가</a></li>
+                </ul>
+            </li>
+            <li><a>게임</a>
+                <ul class="subMenu">
+                    <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
+                </ul>
+            </li>
+                <li><a href="/login">로그인</a></li>
+                <li><a href="/signin">회원가입</a></li>
+            <% } %>
+        </ul>
+    </nav>
+    <div class="richest_personList"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="script/main.js"></script>
+    <script>
+        const money = '<%= money %>'
+        function checkLogin(event) {
+            event.preventDefault();
+            alert('로그인이 필요한 기능입니다.')
+            window.location.href = '/login';
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // 페이지 로딩이 완료되면 실행될 코드
+            
+            // POST 요청을 보냅니다.
+            fetch('/richest_person', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('서버 응답이 실패했습니다.');
+                }
+                return response.json(); // JSON 형식의 응답을 파싱
+            })
+            .then(dataWrapper => {
+                const data = dataWrapper.data; // dataWrapper에서 data 배열 추출
+                // 서버에서 반환된 데이터를 처리하여 HTML에 추가합니다.
+                const bestEarnerList = document.querySelector('.richest_personList');
+                const maxEntries = 10; // 최대 표시할 항목 수
+                const missingEntries = Math.max(0, maxEntries - data.length); // 부족한 항목 수 계산
+                for (let i = 0; i < data.length; i++) {
+                    const [name, money] = data[i]; // 사용자 이름과 돈 추출
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `top${i + 1} 이름 : ${name} - 보유 자산 : ${money}`;
+                    bestEarnerList.appendChild(listItem);
+                }
+                // 부족한 항목을 --로 채웁니다.
+                for (let i = 1; i <= missingEntries; i++) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `top${i + (10 - missingEntries)} --`;
+                    bestEarnerList.appendChild(listItem);
+                }
+            })
+            .catch(error => {
+                console.error('에러:', error);
+            });
+        });
+    </script>
+</body>
+</html>

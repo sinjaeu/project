@@ -4,6 +4,7 @@ CREATE TABLE users (
     email VARCHAR2(100) NOT NULL,
     password VARCHAR2(100) NOT NULL,
     money NUMBER(10, 2) DEFAULT 100000,
+    transaction_count NUMBER DEFAULT 0,
     temporaryPassword VARCHAR2(255) DEFAULT 'systems'
 );
 
@@ -12,7 +13,23 @@ CREATE SEQUENCE user_id_seq
   INCREMENT BY 1
   NOCACHE
   NOCYCLE;
-
+  
+CREATE TABLE stock_holdings (
+  username VARCHAR2(50) NOT NULL,
+  stock VARCHAR2(100) not null,
+  quantity NUMBER not null
+);
+CREATE TABLE currency_holdings (
+  username VARCHAR2(50) NOT NULL,
+  currency VARCHAR2(100) not null,
+  quantity NUMBER not null
+);
+drop table stock_holdings;
 drop table users;
 select * from users;
 SELECT * FROM user_sequences;
+select * from stock_holdings;
+select * from currency_holdings;
+select * from stock_holdings where username = 'user' and stock = '»ï¼ºÀüÀÚ';
+update users set money = 200000 where username = 'user';
+commit;

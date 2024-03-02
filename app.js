@@ -542,7 +542,7 @@ app.post('/stock_transaction_search', async (req, res) => {
         console.log(stockInfo);
     } catch (error) {
         console.error('주식 정보를 가져오는 중 에러 발생:', error);
-        res.status(500).json({ error: '주식 정보를 가져오는 중 에러 발생: ' + error.message});
+        res.status(500).json({ error: error.message});
     }
 });
 
@@ -675,7 +675,7 @@ app.post('/currency_search', async (req, res) => {
                 res.status(200).json({ symbol: symbol, exchangeRateBuy: exchangeRate.buy, exchangeRateSell: exchangeRate.sell });
             } catch (error) {
                 console.error('환율 정보를 가져오는 중 오류 발생:', error.message);
-                res.status(500).json({ error: '환율 정보를 가져오는 중 오류가 발생했습니다.' });
+                res.status(500).json({ error: error.message });
             }
         });
     } catch (error) {
@@ -700,7 +700,7 @@ app.post('/currency_transaction_search', async (req, res) => {
         console.log(currencyInfo);
     } catch (error) {
         console.error('외화 정보를 가져오는 중 에러 발생:', error);
-        res.status(500).json({ error: '외화 정보를 가져오는 중 에러 발생: ' + error.message});
+        res.status(500).json({ error: error.message});
     }
 });
 

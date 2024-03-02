@@ -218,6 +218,10 @@ body{
     border-radius: 10px;
 }
 
+.faq-section > ul > li > h3 {
+    text-align: center;
+}
+
 .faq-section > ul > li {
     border: 1px solid black;
     margin: 5px;
@@ -225,10 +229,11 @@ body{
 }
 
 footer {
+    width: 100%;
     background-color: #f0f0f0;
-    padding: 20px;
     border-top: 1px solid #ccc;
     height: 300px;
+    box-sizing: border-box;
 }
 
 .siteMap {

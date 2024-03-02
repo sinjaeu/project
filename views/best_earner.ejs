@@ -77,6 +77,93 @@
         </ul>
         <div class="best_earnerList"></div>
     </nav>
+    <% if (userId) { %>
+        <footer>
+            <h3>사이트맵</h3>
+            <ul class="siteMap">
+                <li><a href="/">홈</a></li>
+                <li>
+                    <a>주식</a>
+                    <ul class="subSiteMap">
+                        <li><a href="/stock_search">주식 검색</a></li>
+                        <li><a href="/stock_transaction">주식 거래</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>외화</a>
+                    <ul class="subSiteMap">
+                        <li><a href="/currency_search">외화 검색</a></li>
+                        <li><a href="/currency_transaction">외화 거래</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>명예의 전당</a>
+                    <ul class="subSiteMap">
+                        <li><a href="/best_earner">역대 최고 수익자</a></li>
+                        <li><a href="/richest_person">최고의 자산가</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>게임</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#">복권</a></li>
+                        <li><a href="#">룰렛</a></li>
+                        <li><a href="#">주사위</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>사용자 정보</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#">내 정보</a></li>
+                        <li><a href="#">내 자산</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </footer>
+    <%} else { %>
+        <footer>
+            <h3>사이트맵</h3>
+            <ul class="siteMap">
+                <li><a href="/">홈</a></li>
+                <li>
+                    <a>주식 거래</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">주식 검색</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">주식 거래</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>외화 거래</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">외화 검색</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">외화 거래</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>명예의 전당</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">역대 최고 수익자</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">최고의 자산가</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>게임</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a>사용자 정보</a>
+                    <ul class="subSiteMap">
+                        <li><a href="#" onclick="checkLogin(event)">내 정보</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">내 자산</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </footer>
+    <% } %>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="script/main.js"></script>
     <script>

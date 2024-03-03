@@ -11,7 +11,7 @@
     <nav>
         <ul class="mainMenu">
             <% if (userId) { %>
-            <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a href="/">홈</a></li>
             <li><a>주식 거래</a>
                 <ul class="subMenu">
                     <li><a href="/stock_search">검색</a></li>
@@ -52,7 +52,7 @@
         <a href="/lottery"><img src="images/gameImage.png" alt="메인 사진 3" class="mainImage"><span class="imgText">게임 바로가기</span></a>
     </div>
     <% } else { %>
-                <li><a href="/"><img src="" alt="로고"></a></li>
+                <li><a href="/">홈</a></li>
             <li><a>주식 거래</a>
                 <ul class="subMenu">
                     <li><a href="#" onclick="checkLogin(event)">검색</a></li>

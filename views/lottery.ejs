@@ -11,7 +11,7 @@
     <nav>
         <ul class="mainMenu">
             <% if (userId) { %>
-            <li><a href="/"><img src="" alt="로고"></a></li>
+            <li><a href="/">홈</a></li>
             <li><a>주식 거래</a>
                 <ul class="subMenu">
                     <li><a href="/stock_search">검색</a></li>
@@ -45,7 +45,7 @@
                 </ul>
             </li>
             <% } else { %>
-                <li><a href="/"><img src="" alt="로고"></a></li>
+                <li><a href="/">홈</a></li>
             <li><a>주식 거래</a>
                 <ul class="subMenu">
                     <li><a href="#" onclick="checkLogin(event)">검색</a></li>
@@ -189,8 +189,8 @@
                 const username = "<%= userId %>"
                 const userMoney = "<%= money %>";
                 const ticketNumber = parseInt(document.getElementById('ticketNumber').value);
-
-                if(userMoney >= 1000){
+                console.log(ticketNumber);
+                if(userMoney >= 1000 && !isNaN(ticketNumber)){
                     // 서버로 사용자의 돈과 복권 구매 요청 보내기
                     fetch('/buyLottery', {
                         method: 'POST',
@@ -217,7 +217,12 @@
                     });
                 }
                 else{
-                    alert('돈이 부족합니다.');
+                    if(isNaN(ticketNumber)){
+                        alert('올바른 값을 입력해주세요.');
+                    }
+                    else{
+                        alert('돈이 부족합니다.');
+                    }
                 }
             });
         });

@@ -1,0 +1,104 @@
+.login-container{
+    background-color: white;
+    width: 60%;
+    margin: auto;
+    margin-top: 20px;
+    padding: 10px;
+    height: 500px;
+}
+.login-container > h2{
+    font-size: 40px;
+}
+.form-group{
+    margin: 20px;
+    display: block;
+}
+button{
+    width: 80px;
+    padding: 10px;
+    background-color: rgb(31, 161, 31);
+    border: none;
+    border-radius: 5%;
+    margin: 10px;
+}
+button:hover{
+    background-color: rgb(83, 205, 83);
+}
+.form-group > input{
+    width: 70%;
+    height: 30px;
+    border-radius: 0;
+    border: 1px solid black;
+    margin: 10px;
+}
+.form-group > label{
+    font-weight: bold;
+}
+.goSignin{
+    margin: 20px;
+}
+.goSignin > a{
+    text-decoration: none;
+    background-color: black;
+    color: white;
+    padding: 5px;
+    border-radius: 7%;
+}
+.findId, .changePd{
+    margin: 5px;
+    text-decoration: none;
+    background-color: lightseagreen;
+    color: white;
+    padding: 5px;
+    border-radius: 7%;
+}
+.findId{
+    margin-right: 30px;
+}
+.changePd{
+    margin-left: 30px;
+}
+.goMain{
+    padding: 10px;
+    background-color: blue;
+    width: 20%;
+    margin: auto;
+    margin-top: 90px;
+    border-radius: 5%;
+}
+.goMain > a{
+    color: white;
+    text-decoration: none;
+}
+.FITitle, .RPTitle{
+    margin: 20px;
+}
+#find-username-form, #reset-password-form{
+    background-color: white;
+    margin: 10px auto;
+    width: 40%;
+    padding: 10px;
+}
+#find-username-form > div > input, #reset-password-form > div > :nth-child(2){
+    width: 70%;
+    height: 30px;
+    margin-top: 30px;
+    margin-bottom: 70px;
+}
+#reset-password-form > div > :nth-child(5){
+    width: 70%;
+    height: 30px;
+    margin-bottom: 70px;
+}
+#find-username-form > div > label, #reset-password-form > div > :nth-child(4), #reset-password-form > div > :nth-child(1){
+    font-weight: bold;
+}
+#find-username-form > button, #reset-password-form > button{
+    width: 150px;
+}
+#find-username-form > a, #reset-password-form > a{
+    width: 100px;
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}

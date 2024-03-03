@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>역대 최고 수익자</title>
     <link rel="stylesheet" href="/CSS/main.css">
+    <link rel="stylesheet" href="/CSS/contents.css">
 </head>
 <body>
     <nav>
@@ -31,16 +32,15 @@
             </li>
             <li><a>게임</a>
                 <ul class="subMenu">
-                    <li><a href="#">복권</a></li>
-                    <li><a href="#">룰렛</a></li>
-                    <li><a href="#">주사위</a></li>
+                    <li><a href="/lottery">행운의 번호</a></li>
+                    <li><a href="/roulette">룰렛</a></li>
                 </ul>
             </li>
             <li class="userInfo">
                 <a>사용자 이름: <%= userId %></a>
                 <ul class="subMenu">
-                    <li><a href="#">내 정보</a></li>
-                    <li><a href="#">내 자산</a></li>
+                    <li><a href="/myInfo">내 정보</a></li>
+                    <li><a href="/myAsset">내 자산</a></li>
                     <li><a href="/logout">로그아웃</a></li>
                 </ul>
             </li>
@@ -66,17 +66,17 @@
             </li>
             <li><a>게임</a>
                 <ul class="subMenu">
-                    <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">행운의 번호</a></li>
                     <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
-                    <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
                 </ul>
             </li>
                 <li><a href="/login">로그인</a></li>
                 <li><a href="/signin">회원가입</a></li>
             <% } %>
         </ul>
-        <div class="best_earnerList"></div>
     </nav>
+    <h2 class="title">역대 최고의 수익가</h2>
+    <div class="best_earnerList"></div>
     <% if (userId) { %>
         <footer>
             <h3>사이트맵</h3>
@@ -106,16 +106,15 @@
                 <li>
                     <a>게임</a>
                     <ul class="subSiteMap">
-                        <li><a href="#">복권</a></li>
-                        <li><a href="#">룰렛</a></li>
-                        <li><a href="#">주사위</a></li>
+                        <li><a href="/lottery">행운의 번호</a></li>
+                        <li><a href="/roulette">룰렛</a></li>
                     </ul>
                 </li>
                 <li>
                     <a>사용자 정보</a>
                     <ul class="subSiteMap">
-                        <li><a href="#">내 정보</a></li>
-                        <li><a href="#">내 자산</a></li>
+                        <li><a href="/myInfo">내 정보</a></li>
+                        <li><a href="/myAsset">내 자산</a></li>
                     </ul>
                 </li>
             </ul>
@@ -149,9 +148,8 @@
                 <li>
                     <a>게임</a>
                     <ul class="subSiteMap">
-                        <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">행운의 번호</a></li>
                         <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
-                        <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
                     </ul>
                 </li>
                 <li>
@@ -197,13 +195,13 @@
                 const missingEntries = Math.max(0, maxEntries - data.length); // 부족한 항목 수 계산
                 for (let i = 0; i < data.length; i++) {
                     const [username, numTransactions, totalProfit, profitPerTransaction] = data[i]; // 사용자 정보 추출
-                    const listItem = document.createElement('div');
+                    const listItem = document.createElement('li');
                     listItem.textContent = `top${i + 1} - 이름 : ${username} - 거래 횟수: ${numTransactions}, 총 이익: ${totalProfit}, 거래당 이익: ${profitPerTransaction}`;
                     bestEarnerList.appendChild(listItem);
                 }
                 // 부족한 항목을 --로 채웁니다.
                 for (let i = 1; i <= missingEntries; i++) {
-                    const listItem = document.createElement('div');
+                    const listItem = document.createElement('li');
                     listItem.textContent = `top${i + (10-missingEntries)}--`;
                     bestEarnerList.appendChild(listItem);
                 }

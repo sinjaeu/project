@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주식 검색</title>
     <link rel="stylesheet" href="/CSS/main.css">
+    <link rel="stylesheet" href="/CSS/contents.css">
 </head>
 <body>
     <nav>
@@ -31,16 +32,15 @@
             </li>
             <li><a>게임</a>
                 <ul class="subMenu">
-                    <li><a href="#">복권</a></li>
+                    <li><a href="/lottery">행운의 번호</a></li>
                     <li><a href="#">룰렛</a></li>
-                    <li><a href="#">주사위</a></li>
                 </ul>
             </li>
             <li class="userInfo">
                 <a>사용자 이름: <%= userId %></a>
                 <ul class="subMenu">
-                    <li><a href="#">내 정보</a></li>
-                    <li><a href="#">내 자산</a></li>
+                    <li><a href="/myInfo">내 정보</a></li>
+                    <li><a href="/myAsset">내 자산</a></li>
                     <li><a href="/logout">로그아웃</a></li>
                 </ul>
             </li>
@@ -66,9 +66,8 @@
             </li>
             <li><a>게임</a>
                 <ul class="subMenu">
-                    <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">행운의 번호</a></li>
                     <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
-                    <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
                 </ul>
             </li>
                 <li><a href="/login">로그인</a></li>
@@ -82,8 +81,8 @@
             <button type="submit" class="stockSearch-button">검색</button>
         </form>
     </div>
-    <p class="warning"><span><주의!></span> 주식 검색 가격과 실시간 가격은 차이가 있을 수 있습니다.</p>
-    <div class="stockList"><li class="stock"></li></div>
+    <p class="warning"><주의!> 주식 검색 가격과 실시간 가격은 차이가 있을 수 있습니다.</p>
+    <div class="stockList"></div>
     <% if (userId) { %>
         <footer>
             <h3>사이트맵</h3>
@@ -113,16 +112,15 @@
                 <li>
                     <a>게임</a>
                     <ul class="subSiteMap">
-                        <li><a href="#">복권</a></li>
+                        <li><a href="/lottery">행운의 번호</a></li>
                         <li><a href="#">룰렛</a></li>
-                        <li><a href="#">주사위</a></li>
                     </ul>
                 </li>
                 <li>
                     <a>사용자 정보</a>
                     <ul class="subSiteMap">
-                        <li><a href="#">내 정보</a></li>
-                        <li><a href="#">내 자산</a></li>
+                        <li><a href="/myInfo">내 정보</a></li>
+                        <li><a href="/myAsset">내 자산</a></li>
                     </ul>
                 </li>
             </ul>
@@ -156,9 +154,8 @@
                 <li>
                     <a>게임</a>
                     <ul class="subSiteMap">
-                        <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">행운의 번호</a></li>
                         <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
-                        <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
                     </ul>
                 </li>
                 <li>
@@ -188,7 +185,7 @@
             // 받은 데이터를 반복하여 각 주식 정보를 화면에 추가합니다.
             data.forEach(stock => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${stock.name} 가격 : ${stock.price}`;
+                listItem.textContent = `${stock.name} - ${stock.symbol} 가격 : ${stock.price}`;
                 stockList.appendChild(listItem);
             });
             // 주식 구매 바로가기 버튼 추가

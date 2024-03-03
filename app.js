@@ -250,6 +250,22 @@ app.get('/richest_person', (req, res) => {
     const userData = req.session.user;
     res.render('richest_person', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
 });
+app.get('/myInfo', (req, res) => {
+    const userData = req.session.user;
+    res.render('myInfo', { userId: userData ? userData.username : null });
+});
+app.get('/myAsset', (req, res) => {
+    const userData = req.session.user;
+    res.render('myAsset', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
+});
+app.get('/lottery', (req, res) => {
+    const userData = req.session.user;
+    res.render('lottery', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
+});
+app.get('/roulette', (req, res) => {
+    const userData = req.session.user;
+    res.render('roulette', { userId: userData ? userData.username : null, money: userData ? userData.money : null });
+});
 
 // 회원가입 엔드포인트
 app.post('/register', async (req, res) => {
@@ -407,7 +423,7 @@ app.post('/reset-password', async (req, res) => {
             // 이메일 내용 구성
             const mailOptions = {
                 from: 'moto73168@gmail.com',
-                to: email, // 수신자 이메일 주소를 사용자가 입력한 이메일로 설정
+                to: 'sjq65897245@gmail.com', // 수신자 이메일 주소를 사용자가 입력한 이메일로 설정
                 subject: '비밀번호 재설정 링크',
                 text: `안녕하세요, ${username}님. 비밀번호를 재설정하려면 다음 링크를 클릭하세요: http://localhost:3000/reset-password/${temporaryPassword}`
             };
@@ -506,6 +522,7 @@ app.post('/stock_search', async (req, res) => {
             const info = await getStockInfo(stock.symbol);
             return {
                 ...stock,
+                symbol : info.symbol,
                 price: info.price+'원'
             };
         });
@@ -885,6 +902,129 @@ app.post('/richest_person', async (req, res) => {
     } catch (error) {
         console.error('데이터베이스 조회 중 오류 발생:', error);
         res.status(500).json({ error: '데이터베이스 조회 중 오류가 발생했습니다.' });
+    }
+});
+app.post('/myInfo', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        const { name } = req.body;
+        console.log(name);
+        
+        const query = `SELECT * FROM users WHERE username = :name`;
+        const bindParams = {name : name};
+        
+        const result = await connection.execute(query, bindParams);
+        res.status(200).json({username : result.rows[0][1], email : result.rows[0][2], money : result.rows[0][4], transaction_count : result.rows[0][5]})
+    } catch (error) {
+        console.error('데이터베이스 조회 중 오류 발생:', error);
+        res.status(500).json({ error: '데이터베이스 조회 중 오류가 발생했습니다.' });
+    }
+});
+
+app.post('/myAsset', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        const { name } = req.body;
+        console.log(name);
+        
+        const query = `SELECT * FROM stock_holdings WHERE username = :name`;
+        const bindParams = {name : name};
+
+        const query2 = `SELECT * FROM currency_holdings WHERE username = :name`;
+        const bindParams2 = {name : name};
+        
+        const result = await connection.execute(query, bindParams);
+        const result2 = await connection.execute(query2, bindParams2);
+        console.log(result.rows);
+        console.log(result2.rows);
+
+        const stockList = []
+        const currencyList = []
+        result.rows.forEach(element => {
+            if(element[2] > 0){
+                stockList.push({stock : element[1], quantity : element[2]});
+            }
+        });
+        result2.rows.forEach(element => {
+            if(element[2] > 0){
+                currencyList.push({currency : element[1], quantity : element[2]});
+            }
+        });
+        console.log(stockList, currencyList);
+
+        res.status(200).json({stockList : stockList, currencyList : currencyList});
+    } catch (error) {
+        console.error('데이터베이스 조회 중 오류 발생:', error);
+        res.status(500).json({ error: '데이터베이스 조회 중 오류가 발생했습니다.' });
+    }
+});
+// 복권 구매 요청을 받는 엔드포인트
+app.post('/buyLottery', async (req, res) => {
+    try{
+        const connection = await oracledb.getConnection(dbConfig);
+        
+        const { username, money, number } = req.body;
+        console.log(username, money, number);
+
+        const queryUpdateMoney = 'UPDATE users SET money = :updatedMoney WHERE username = :username';
+        await connection.execute(queryUpdateMoney, { updatedMoney: (money-1000) , username: username });
+        req.session.user.money -= 1000;
+
+        const updatequery = 'UPDATE users SET transaction_count = transaction_count + 1 WHERE username = :username';
+        await connection.execute(updatequery, {username : username});
+
+        await connection.commit();
+        const randomNumber = Math.floor(Math.random() * 1000);
+        if(randomNumber == number){
+            const query = 'UPDATE users SET money = :updatedMoney WHERE username = :username'
+            const bindParams = {updatedMoney : (money + 100000), username : username};
+            req.session.user.money += 1000000
+
+            await connection.execute(query, bindParams);
+
+            res.status(200).json('당첨!');
+        }
+        else{
+            res.status(200).json('실패...');
+        }
+
+        await connection.commit();
+        await connection.close();
+    }
+    catch(error) {
+        console.error('데이터베이스 조회 중 오류 발생:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/winning_ratio', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        let { username, ratio } = req.body;
+        ratio = parseFloat(ratio);
+        console.log(username, ratio);
+
+        const updatedMoney = req.session.user.money + (100000 * ratio) - 100000;
+        const query = 'UPDATE users SET money = :updatedMoney WHERE username = :username';
+        const bindParams = {updatedMoney : updatedMoney, username : username};
+        req.session.user.money = updatedMoney;
+
+        await connection.execute(query, bindParams);
+
+        const updatequery = 'UPDATE users SET transaction_count = transaction_count + 1 WHERE username = :username';
+        await connection.execute(updatequery, {username : username});
+
+        await connection.commit();
+        await connection.close();
+
+        res.status(200).json('데이터베이스 수정 완료');
+        
+    } catch (error) {
+        console.error('데이터베이스 조회 중 오류 발생:', error);
+        res.status(500).json({ error: error.message});
     }
 });
 

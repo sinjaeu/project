@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>외화 검색</title>
+    <title>행운의 번호 게임</title>
     <link rel="stylesheet" href="/CSS/main.css">
     <link rel="stylesheet" href="/CSS/contents.css">
 </head>
@@ -75,14 +75,16 @@
             <% } %>
         </ul>
     </nav>
-    <div class="currency_search-container">
-        <form action="/currency_search" method="post">
-            <input type="text" name="query" class="currency_search-box" placeholder="나라 이름을 입력해주세요">
-            <button type="submit" class="currency_search-button">검색</button>
+    <div class="lotteryFormContainer">
+        <h1>행운의 번호 게임</h1>
+        <p>1부터 999까지 번호 입력 후 당첨되면 100만원 판당 1000원</p>
+        <form id="lotteryForm">
+            <label for="ticketNumber">1 ~ 999까지 번호 선택: </label>
+            <input type="number" id="ticketNumber" min="0" max="999">
+            <button type="submit">구매</button>
         </form>
     </div>
-    <p class="warning"><주의!> 외화 검색 가격과 실시간 가격은 차이가 있을 수 있습니다.</p>
-    <div class="currencyList"></div>
+    <div id="result"></div>
     <% if (userId) { %>
         <footer>
             <h3>사이트맵</h3>
@@ -169,70 +171,53 @@
         </footer>
     <% } %>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="script/main.js"></script>
+    <script src="/script/main.js"></script>
     <script>
         function checkLogin(event) {
             event.preventDefault();
             alert('로그인이 필요한 기능입니다.')
             window.location.href = '/login';
         }
-        function displayCurrencyResult(data) {
-            const currencyList = document.querySelector('.currencyList');
-
-            // 결과를 출력하기 전에 이전에 출력된 내용을 모두 지웁니다.
-            currencyList.innerHTML = '';
-
-            // 받은 데이터를 화면에 추가합니다.
-            const listItem = document.createElement('li');
-            listItem.textContent = `환율 정보 ${data.symbol} - 매수: ${data.exchangeRateBuy}, 매도: ${data.exchangeRateSell}`;
-            currencyList.appendChild(listItem);
-
-            // 환율 구매 바로가기 버튼 추가
-            const buyButtonContainer = document.createElement('div');
-            const buyButtonLink = document.createElement('a');
-            buyButtonLink.href = '/currency_transaction';
-            buyButtonLink.classList.add('go_currencyBuy');
-            const buyButton = document.createElement('button');
-            buyButton.textContent = '외화 구매 바로가기';
-            buyButtonLink.appendChild(buyButton);
-            buyButtonContainer.appendChild(buyButtonLink);
-            currencyList.appendChild(buyButtonContainer);
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('.currency_search-container form');
+            const lotteryForm = document.getElementById('lotteryForm');
+            const resultDiv = document.getElementById('result');
 
-            form.addEventListener('submit', function(event) {
-                event.preventDefault(); // 폼의 기본 동작 방지
+            lotteryForm.addEventListener('submit', function(event) {
+                event.preventDefault();
 
-                const query = form.querySelector('.currency_search-box').value.trim(); // 입력된 나라 이름 가져오기
+                // 사용자 이름과 돈
+                const username = "<%= userId %>"
+                const userMoney = "<%= money %>";
+                const ticketNumber = parseInt(document.getElementById('ticketNumber').value);
 
-                if (query) {
-                    // 입력된 나라 이름이 있다면, 서버에 POST 요청으로 전송
-                    fetch('/currency_search', {
+                if(userMoney >= 1000){
+                    // 서버로 사용자의 돈과 복권 구매 요청 보내기
+                    fetch('/buyLottery', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ query: query })
+                        body: JSON.stringify({ username: username, money: userMoney, number : ticketNumber })
                     })
                     .then(response => {
+                        if (!response.ok) {
+                            throw new Error('서버 응답이 실패했습니다.');
+                        }
                         return response.json(); // JSON 형식의 응답을 파싱
                     })
                     .then(data => {
+                        // 복권 결과 표시
                         console.log(data);
-                        if(data.error){
-                            throw new Error(data.error);
-                        }
-                        // 서버에서 반환된 환율 검색 결과를 표시
-                        displayCurrencyResult(data);
+                        alert(data);
+                        location.reload();
                     })
                     .catch(error => {
-                        alert(error);
-                        console.error('에러:', error);
+                        // 요청 실패 또는 응답 처리 중 오류가 발생한 경우
+                        console.error('오류:', error);
                     });
-                } else {
-                    alert('나라 이름을 입력하세요');
+                }
+                else{
+                    alert('돈이 부족합니다.');
                 }
             });
         });

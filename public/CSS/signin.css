@@ -1,0 +1,58 @@
+.signup-container{
+    background-color: white;
+    width: 60%;
+    margin: auto;
+    margin-top: 20px;
+    padding: 10px;
+    height: 600px;
+}
+.signup-container > h2{
+    font-size: 40px;
+}
+.form-group{
+    margin: 20px;
+    display: block;
+}
+button{
+    width: 80px;
+    padding: 10px;
+    background-color: rgb(31, 161, 31);
+    border: none;
+    border-radius: 5%;
+    margin: 10px;
+}
+button:hover{
+    background-color: rgb(83, 205, 83);
+}
+.form-group > input{
+    width: 70%;
+    height: 30px;
+    border-radius: 0;
+    border: 1px solid black;
+    margin: 10px;
+}
+.form-group > label{
+    font-weight: bold;
+}
+.goLogin{
+    margin: 20px;
+}
+.goLogin > a{
+    text-decoration: none;
+    background-color: black;
+    color: white;
+    padding: 5px;
+    border-radius: 7%;
+}
+.goMain{
+    padding: 10px;
+    background-color: blue;
+    width: 20%;
+    margin: auto;
+    margin-top: 90px;
+    border-radius: 5%;
+}
+.goMain > a{
+    color: white;
+    text-decoration: none;
+}

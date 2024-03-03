@@ -32,4 +32,5 @@ select * from stock_holdings;
 select * from currency_holdings;
 select * from stock_holdings where username = 'user' and stock = '»ï¼ºÀüÀÚ';
 update users set money = 200000 where username = 'user';
+insert into stock_holdings (username, stock, quantity) values ('user', 'LG', 1);
 commit;

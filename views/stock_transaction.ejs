@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주식 매수 / 매도</title>
     <link rel="stylesheet" href="/CSS/main.css">
+    <link rel="stylesheet" href="/CSS/contents.css">
 </head>
 <body>
     <nav>
@@ -31,16 +32,15 @@
             </li>
             <li><a>게임</a>
                 <ul class="subMenu">
-                    <li><a href="#">복권</a></li>
+                    <li><a href="/lottery">행운의 번호</a></li>
                     <li><a href="#">룰렛</a></li>
-                    <li><a href="#">주사위</a></li>
                 </ul>
             </li>
             <li class="userInfo">
                 <a>사용자 이름: <%= userId %></a>
                 <ul class="subMenu">
-                    <li><a href="#">내 정보</a></li>
-                    <li><a href="#">내 자산</a></li>
+                    <li><a href="/myInfo">내 정보</a></li>
+                    <li><a href="/myAsset">내 자산</a></li>
                     <li><a href="/logout">로그아웃</a></li>
                 </ul>
             </li>
@@ -66,9 +66,8 @@
             </li>
             <li><a>게임</a>
                 <ul class="subMenu">
-                    <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                    <li><a href="#" onclick="checkLogin(event)">행운의 번호</a></li>
                     <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
-                    <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
                 </ul>
             </li>
                 <li><a href="/login">로그인</a></li>
@@ -112,16 +111,15 @@
                 <li>
                     <a>게임</a>
                     <ul class="subSiteMap">
-                        <li><a href="#">복권</a></li>
+                        <li><a href="/lottery">행운의 번호</a></li>
                         <li><a href="#">룰렛</a></li>
-                        <li><a href="#">주사위</a></li>
                     </ul>
                 </li>
                 <li>
                     <a>사용자 정보</a>
                     <ul class="subSiteMap">
-                        <li><a href="#">내 정보</a></li>
-                        <li><a href="#">내 자산</a></li>
+                        <li><a href="/myInfo">내 정보</a></li>
+                        <li><a href="/myAsset">내 자산</a></li>
                     </ul>
                 </li>
             </ul>
@@ -155,9 +153,8 @@
                 <li>
                     <a>게임</a>
                     <ul class="subSiteMap">
-                        <li><a href="#" onclick="checkLogin(event)">복권</a></li>
+                        <li><a href="#" onclick="checkLogin(event)">행운의 번호</a></li>
                         <li><a href="#" onclick="checkLogin(event)">룰렛</a></li>
-                        <li><a href="#" onclick="checkLogin(event)">주사위</a></li>
                     </ul>
                 </li>
                 <li>

@@ -3,7 +3,7 @@ CREATE TABLE users (
     username VARCHAR2(50) UNIQUE NOT NULL,
     email VARCHAR2(100) NOT NULL,
     password VARCHAR2(100) NOT NULL,
-    money NUMBER(10, 2) DEFAULT 100000,
+    money NUMBER(38, 2) DEFAULT 10000000000,
     transaction_count NUMBER DEFAULT 0,
     temporaryPassword VARCHAR2(255) DEFAULT 'systems'
 );
@@ -30,7 +30,7 @@ select * from users;
 SELECT * FROM user_sequences;
 select * from stock_holdings;
 select * from currency_holdings;
-select * from stock_holdings where username = 'user' and stock = '»ï¼ºÀüÀÚ';
+select * from stock_holdings where username = 'user' and stock = 'ï¿½ï¼ºï¿½ï¿½ï¿½ï¿½';
 update users set money = 200000 where username = 'user';
 insert into stock_holdings (username, stock, quantity) values ('user', 'LG', 1);
 commit;
